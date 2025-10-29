@@ -1,14 +1,16 @@
 import { useState } from "react";
-import { Plus } from "lucide-react";
+import { Plus, FileUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { SessionDialog } from "@/components/SessionDialog";
 import { SessionsTable } from "@/components/SessionsTable";
+import { ImportDialog } from "@/components/ImportDialog";
 
 const Sessions = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isImportOpen, setIsImportOpen] = useState(false);
 
   const { data: sessions, isLoading, refetch } = useQuery({
     queryKey: ["sessions"],
@@ -35,10 +37,16 @@ const Sessions = () => {
           <h1 className="text-3xl font-bold tracking-tight">Registro de Sesiones de Cámara Gesell</h1>
           <p className="text-muted-foreground">Gestión de sesiones y causas judiciales</p>
         </div>
-        <Button onClick={() => setIsDialogOpen(true)}>
-          <Plus className="h-4 w-4 mr-2" />
-          Nueva Sesión
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => setIsImportOpen(true)}>
+            <FileUp className="h-4 w-4 mr-2" />
+            Importar Excel
+          </Button>
+          <Button onClick={() => setIsDialogOpen(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            Nueva Sesión
+          </Button>
+        </div>
       </div>
 
       <Card>
@@ -61,6 +69,12 @@ const Sessions = () => {
       <SessionDialog
         open={isDialogOpen}
         onOpenChange={setIsDialogOpen}
+        onSuccess={refetch}
+      />
+
+      <ImportDialog
+        open={isImportOpen}
+        onOpenChange={setIsImportOpen}
         onSuccess={refetch}
       />
     </div>

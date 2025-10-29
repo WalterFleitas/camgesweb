@@ -1,14 +1,16 @@
 import { useState } from "react";
-import { Plus } from "lucide-react";
+import { Plus, FileUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { VictimDialog } from "@/components/VictimDialog";
 import { VictimsTable } from "@/components/VictimsTable";
+import { ImportDialog } from "@/components/ImportDialog";
 
 const Victims = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isImportOpen, setIsImportOpen] = useState(false);
 
   const { data: victims, isLoading, refetch } = useQuery({
     queryKey: ["victims"],
@@ -30,10 +32,16 @@ const Victims = () => {
           <h1 className="text-3xl font-bold tracking-tight">Gestión de Víctimas</h1>
           <p className="text-muted-foreground">Mantenimiento de registros de víctimas</p>
         </div>
-        <Button onClick={() => setIsDialogOpen(true)}>
-          <Plus className="h-4 w-4 mr-2" />
-          Nueva Víctima
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => setIsImportOpen(true)}>
+            <FileUp className="h-4 w-4 mr-2" />
+            Importar Excel
+          </Button>
+          <Button onClick={() => setIsDialogOpen(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            Nueva Víctima
+          </Button>
+        </div>
       </div>
 
       <Card>
@@ -56,6 +64,12 @@ const Victims = () => {
       <VictimDialog
         open={isDialogOpen}
         onOpenChange={setIsDialogOpen}
+        onSuccess={refetch}
+      />
+
+      <ImportDialog
+        open={isImportOpen}
+        onOpenChange={setIsImportOpen}
         onSuccess={refetch}
       />
     </div>

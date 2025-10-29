@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Plus } from "lucide-react";
+import { Plus, FileUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -7,10 +7,12 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { StaffTable } from "@/components/StaffTable";
 import { StaffDialog } from "@/components/StaffDialog";
+import { ImportDialog } from "@/components/ImportDialog";
 
 const Staff = () => {
   const [activeTab, setActiveTab] = useState("judges");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isImportOpen, setIsImportOpen] = useState(false);
   const [staffType, setStaffType] = useState<"judges" | "psychologists">("judges");
 
   const { data: judges, refetch: refetchJudges } = useQuery({
@@ -64,10 +66,16 @@ const Staff = () => {
                 <TabsTrigger value="judges">Jueces</TabsTrigger>
                 <TabsTrigger value="psychologists">Psicólogos</TabsTrigger>
               </TabsList>
-              <Button onClick={() => handleNewStaff(activeTab === "judges" ? "judges" : "psychologists")}>
-                <Plus className="h-4 w-4 mr-2" />
-                {activeTab === "judges" ? "Nuevo Juez/a" : "Nuevo Psicólogo/a"}
-              </Button>
+              <div className="flex gap-2">
+                <Button variant="outline" onClick={() => setIsImportOpen(true)}>
+                  <FileUp className="h-4 w-4 mr-2" />
+                  Importar Excel
+                </Button>
+                <Button onClick={() => handleNewStaff(activeTab === "judges" ? "judges" : "psychologists")}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  {activeTab === "judges" ? "Nuevo Juez/a" : "Nuevo Psicólogo/a"}
+                </Button>
+              </div>
             </div>
           </Tabs>
         </CardHeader>
@@ -102,6 +110,12 @@ const Staff = () => {
         onOpenChange={setIsDialogOpen}
         onSuccess={refetch}
         type={staffType}
+      />
+
+      <ImportDialog
+        open={isImportOpen}
+        onOpenChange={setIsImportOpen}
+        onSuccess={refetch}
       />
     </div>
   );
