@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import systemLogo from "@/assets/system-logo.png";
+import logoPoderJudicial from "@/assets/logo-poder-judicial.png";
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -123,7 +123,7 @@ const Auth = () => {
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
-            <img src={systemLogo} alt="Sistema Cámara Gesell" className="h-24 w-24 object-contain" />
+            <img src={logoPoderJudicial} alt="Poder Judicial" className="h-20 w-auto object-contain" />
           </div>
           <CardTitle className="text-2xl">Sistema Cámara Gesell</CardTitle>
           <CardDescription>Gestión de sesiones y causas judiciales</CardDescription>
