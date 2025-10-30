@@ -14,6 +14,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
+import systemLogo from "@/assets/system-logo.png";
 
 const menuItems = [
   { title: "Sesiones de Cámara Gesell", url: "/", icon: Video },
@@ -48,7 +49,8 @@ export function AppSidebar() {
   return (
     <Sidebar>
       <SidebarContent>
-        <div className="px-6 py-4">
+        <div className="px-6 py-4 flex items-center gap-3">
+          <img src={systemLogo} alt="Logo" className="h-12 w-12 object-contain" />
           <h2 className="text-lg font-semibold text-sidebar-foreground">Sistema Cámara Gesell</h2>
         </div>
         <SidebarGroup>
