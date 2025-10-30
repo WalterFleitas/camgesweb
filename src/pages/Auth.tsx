@@ -13,7 +13,7 @@ const Auth = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
-  const [email, setEmail] = useState("");
+  const [cedula, setCedula] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
 
@@ -35,11 +35,22 @@ const Auth = () => {
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (cedula.length !== 7 || !/^\d+$/.test(cedula)) {
+      toast({
+        title: "Error de validación",
+        description: "El número de cédula debe tener exactamente 7 dígitos",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     setLoading(true);
 
     try {
+      const internalEmail = `${cedula}@gesell.local`;
       const { error } = await supabase.auth.signInWithPassword({
-        email,
+        email: internalEmail,
         password,
       });
 
@@ -52,7 +63,7 @@ const Auth = () => {
     } catch (error: any) {
       toast({
         title: "Error al iniciar sesión",
-        description: error.message,
+        description: "Cédula o contraseña incorrectos",
         variant: "destructive",
       });
     } finally {
@@ -62,15 +73,27 @@ const Auth = () => {
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (cedula.length !== 7 || !/^\d+$/.test(cedula)) {
+      toast({
+        title: "Error de validación",
+        description: "El número de cédula debe tener exactamente 7 dígitos",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     setLoading(true);
 
     try {
+      const internalEmail = `${cedula}@gesell.local`;
       const { error } = await supabase.auth.signUp({
-        email,
+        email: internalEmail,
         password,
         options: {
           data: {
             full_name: fullName,
+            cedula: cedula,
           },
           emailRedirectTo: `${window.location.origin}/`,
         },
@@ -85,7 +108,9 @@ const Auth = () => {
     } catch (error: any) {
       toast({
         title: "Error al registrarse",
-        description: error.message,
+        description: error.message === "User already registered" 
+          ? "Esta cédula ya está registrada"
+          : error.message,
         variant: "destructive",
       });
     } finally {
@@ -114,15 +139,20 @@ const Auth = () => {
             <TabsContent value="signin">
               <form onSubmit={handleSignIn} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="email">Correo Electrónico</Label>
+                  <Label htmlFor="cedula">Número de Cédula</Label>
                   <Input
-                    id="email"
-                    type="email"
-                    placeholder="tu@email.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    id="cedula"
+                    type="text"
+                    placeholder="1234567"
+                    value={cedula}
+                    onChange={(e) => {
+                      const value = e.target.value.replace(/\D/g, '').slice(0, 7);
+                      setCedula(value);
+                    }}
+                    maxLength={7}
                     required
                   />
+                  <p className="text-xs text-muted-foreground">7 dígitos sin puntos ni guiones</p>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="password">Contraseña</Label>
@@ -154,15 +184,20 @@ const Auth = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="signup-email">Correo Electrónico</Label>
+                  <Label htmlFor="signup-cedula">Número de Cédula</Label>
                   <Input
-                    id="signup-email"
-                    type="email"
-                    placeholder="tu@email.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    id="signup-cedula"
+                    type="text"
+                    placeholder="1234567"
+                    value={cedula}
+                    onChange={(e) => {
+                      const value = e.target.value.replace(/\D/g, '').slice(0, 7);
+                      setCedula(value);
+                    }}
+                    maxLength={7}
                     required
                   />
+                  <p className="text-xs text-muted-foreground">7 dígitos sin puntos ni guiones</p>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="signup-password">Contraseña</Label>
