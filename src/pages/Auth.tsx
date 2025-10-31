@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import logoPoderJudicial from "@/assets/logo-poder-judicial.png";
+import { User, Lock, Eye, EyeOff } from "lucide-react";
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -16,6 +17,7 @@ const Auth = () => {
   const [cedula, setCedula] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -138,30 +140,45 @@ const Auth = () => {
               <form onSubmit={handleSignIn} className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="cedula">Número de Cédula</Label>
-                  <Input
-                    id="cedula"
-                    type="text"
-                    placeholder="1234567"
-                    value={cedula}
-                    onChange={(e) => {
-                      const value = e.target.value.replace(/\D/g, '').slice(0, 7);
-                      setCedula(value);
-                    }}
-                    maxLength={7}
-                    required
-                  />
+                  <div className="relative">
+                    <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="cedula"
+                      type="text"
+                      placeholder="1234567"
+                      value={cedula}
+                      onChange={(e) => {
+                        const value = e.target.value.replace(/\D/g, '').slice(0, 7);
+                        setCedula(value);
+                      }}
+                      maxLength={7}
+                      className="pl-10"
+                      required
+                    />
+                  </div>
                   <p className="text-xs text-muted-foreground">7 dígitos sin puntos ni guiones</p>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="password">Contraseña</Label>
-                  <Input
-                    id="password"
-                    type="password"
-                    placeholder="••••••••"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                  />
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="password"
+                      type={showPassword ? "text" : "password"}
+                      placeholder="••••••••"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="pl-10 pr-10"
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                  </div>
                 </div>
                 <Button type="submit" className="w-full" disabled={loading}>
                   {loading ? "Cargando..." : "Iniciar Sesión"}
@@ -183,30 +200,45 @@ const Auth = () => {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="signup-cedula">Número de Cédula</Label>
-                  <Input
-                    id="signup-cedula"
-                    type="text"
-                    placeholder="1234567"
-                    value={cedula}
-                    onChange={(e) => {
-                      const value = e.target.value.replace(/\D/g, '').slice(0, 7);
-                      setCedula(value);
-                    }}
-                    maxLength={7}
-                    required
-                  />
+                  <div className="relative">
+                    <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="signup-cedula"
+                      type="text"
+                      placeholder="1234567"
+                      value={cedula}
+                      onChange={(e) => {
+                        const value = e.target.value.replace(/\D/g, '').slice(0, 7);
+                        setCedula(value);
+                      }}
+                      maxLength={7}
+                      className="pl-10"
+                      required
+                    />
+                  </div>
                   <p className="text-xs text-muted-foreground">7 dígitos sin puntos ni guiones</p>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="signup-password">Contraseña</Label>
-                  <Input
-                    id="signup-password"
-                    type="password"
-                    placeholder="••••••••"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                  />
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="signup-password"
+                      type={showPassword ? "text" : "password"}
+                      placeholder="••••••••"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="pl-10 pr-10"
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                  </div>
                 </div>
                 <Button type="submit" className="w-full" disabled={loading}>
                   {loading ? "Cargando..." : "Registrarse"}
