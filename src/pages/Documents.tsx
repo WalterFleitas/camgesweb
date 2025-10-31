@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { FileSpreadsheet, Upload, Trash2, Download, FileText, Image } from "lucide-react";
+import { FileSpreadsheet, Upload, Trash2, Download, FileText, Image, File, MessageSquare } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -205,7 +205,10 @@ const Documents = () => {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="file">Archivo (PDF, Word, imágenes)</Label>
+            <Label htmlFor="file" className="flex items-center gap-2">
+              <File className="h-4 w-4" />
+              Archivo (PDF, Word, imágenes)
+            </Label>
             <Input
               id="file"
               type="file"
@@ -221,7 +224,10 @@ const Documents = () => {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="description">Descripción (opcional)</Label>
+            <Label htmlFor="description" className="flex items-center gap-2">
+              <MessageSquare className="h-4 w-4" />
+              Descripción (opcional)
+            </Label>
             <Textarea
               id="description"
               placeholder="Descripción del documento..."

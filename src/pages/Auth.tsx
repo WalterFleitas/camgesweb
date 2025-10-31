@@ -145,7 +145,7 @@ const Auth = () => {
                     <Input
                       id="cedula"
                       type="text"
-                      placeholder="1234567"
+                      placeholder="Usuario"
                       value={cedula}
                       onChange={(e) => {
                         const value = e.target.value.replace(/\D/g, '').slice(0, 7);
@@ -165,7 +165,7 @@ const Auth = () => {
                     <Input
                       id="password"
                       type={showPassword ? "text" : "password"}
-                      placeholder="••••••••"
+                      placeholder="Contraseña"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       className="pl-10 pr-10"
@@ -205,7 +205,7 @@ const Auth = () => {
                     <Input
                       id="signup-cedula"
                       type="text"
-                      placeholder="1234567"
+                      placeholder="Usuario"
                       value={cedula}
                       onChange={(e) => {
                         const value = e.target.value.replace(/\D/g, '').slice(0, 7);
@@ -225,7 +225,7 @@ const Auth = () => {
                     <Input
                       id="signup-password"
                       type={showPassword ? "text" : "password"}
-                      placeholder="••••••••"
+                      placeholder="Contraseña"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       className="pl-10 pr-10"
