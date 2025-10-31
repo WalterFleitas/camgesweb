@@ -109,36 +109,42 @@ export type Database = {
       }
       sessions: {
         Row: {
+          cantidad_copias: number | null
           case_name: string
           created_at: string
           defendant_name: string
           disco_number: number
           id: number
           judge_id: number | null
+          oficio_number: string | null
           psychologist_id: number | null
           session_date: string
           user_id: string
           victim_id: number | null
         }
         Insert: {
+          cantidad_copias?: number | null
           case_name: string
           created_at?: string
           defendant_name: string
           disco_number: number
           id?: number
           judge_id?: number | null
+          oficio_number?: string | null
           psychologist_id?: number | null
           session_date: string
           user_id: string
           victim_id?: number | null
         }
         Update: {
+          cantidad_copias?: number | null
           case_name?: string
           created_at?: string
           defendant_name?: string
           disco_number?: number
           id?: number
           judge_id?: number | null
+          oficio_number?: string | null
           psychologist_id?: number | null
           session_date?: string
           user_id?: string
