@@ -193,10 +193,10 @@ export function ImportDialog({ open, onOpenChange, onSuccess }: ImportDialogProp
             user_id: user.id,
             disco_number: parseInt(rowData["Disco Nº"]) || 0,
             session_date: sessionDate.toISOString(),
-            oficio_number: rowData["Oficio N°"]?.toString() || "",
-            case_name: rowData["Causa"]?.toString() || "",
-            defendant_name: "",
-            cantidad_copias: parseInt(rowData["Cant. Cop."]) || 0,
+            oficio_number: rowData["Oficio N°"]?.toString() || null,
+            case_name: rowData["Causa"]?.toString() || "Sin especificar",
+            defendant_name: "N/A",
+            cantidad_copias: parseInt(rowData["Cant. Cop."]) || null,
             judge_id: judgeId,
             psychologist_id: psychologistId,
             victim_id: victimId,
@@ -208,6 +208,7 @@ export function ImportDialog({ open, onOpenChange, onSuccess }: ImportDialogProp
 
           if (sessionError) {
             console.error("Error inserting session:", sessionError);
+            throw sessionError;
           }
         }
 
