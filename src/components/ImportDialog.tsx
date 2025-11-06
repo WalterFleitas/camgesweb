@@ -117,7 +117,7 @@ export function ImportDialog({ open, onOpenChange, onSuccess }: ImportDialogProp
             const { data: existingJudge } = await supabase
               .from("judges")
               .select("id")
-              .eq("full_name", judgeName)
+              .ilike("full_name", judgeName)
               .eq("user_id", user.id)
               .maybeSingle();
 
@@ -143,7 +143,7 @@ export function ImportDialog({ open, onOpenChange, onSuccess }: ImportDialogProp
             const { data: existingPsych } = await supabase
               .from("psychologists")
               .select("id")
-              .eq("full_name", psychologistName)
+              .ilike("full_name", psychologistName)
               .eq("user_id", user.id)
               .maybeSingle();
 
@@ -169,7 +169,7 @@ export function ImportDialog({ open, onOpenChange, onSuccess }: ImportDialogProp
             const { data: existingVictim } = await supabase
               .from("victims")
               .select("id")
-              .eq("full_name", victimName)
+              .ilike("full_name", victimName)
               .eq("user_id", user.id)
               .maybeSingle();
 
