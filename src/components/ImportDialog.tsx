@@ -154,14 +154,28 @@ export function ImportDialog({ open, onOpenChange, onSuccess }: ImportDialogProp
         );
       }
       
-      const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-      const sheetRange = worksheet['!ref'];
-      console.log("Rango de la hoja:", sheetRange);
+      // Buscar la primera hoja con datos
+      let worksheet = null;
+      let sheetRange = null;
+      let selectedSheetName = null;
+
+      for (const sheetName of workbook.SheetNames) {
+        const sheet = workbook.Sheets[sheetName];
+        const range = sheet['!ref'];
+        
+        if (range) {
+          worksheet = sheet;
+          sheetRange = range;
+          selectedSheetName = sheetName;
+          console.log(`Hoja seleccionada: "${sheetName}" con rango: ${range}`);
+          break;
+        }
+      }
       
-      if (!sheetRange) {
+      if (!worksheet || !sheetRange) {
         throw new Error(
-          "La hoja de Excel está vacía. " +
-          "Asegúrate de que la primera hoja contenga datos."
+          "No se encontró ninguna hoja con datos en el archivo Excel. " +
+          `Hojas disponibles: ${workbook.SheetNames.join(", ")}`
         );
       }
       
