@@ -87,20 +87,26 @@ export function ImportDialog({ open, onOpenChange, onSuccess }: ImportDialogProp
       if (!user) throw new Error("Usuario no autenticado");
 
       const data = await file.arrayBuffer();
-      const workbook = XLSX.read(data);
+      const workbook = XLSX.read(data, { type: 'array' });
+      
+      console.log("Hojas disponibles:", workbook.SheetNames);
       
       if (!workbook.SheetNames || workbook.SheetNames.length === 0) {
         throw new Error("El archivo Excel no contiene hojas de trabajo");
       }
       
       const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+      console.log("Rango de la hoja:", worksheet['!ref']);
+      
       const jsonData = XLSX.utils.sheet_to_json(worksheet, { 
-        defval: "",
-        blankrows: false 
+        defval: null,
+        blankrows: false,
+        raw: false
       });
 
       console.log("Datos leídos del Excel:", jsonData);
       console.log("Primera fila:", jsonData[0]);
+      console.log("Total de filas:", jsonData.length);
 
       if (jsonData.length === 0) {
         throw new Error("El archivo está vacío o no tiene datos. Asegúrate de que la primera fila contenga los nombres de las columnas y que haya datos debajo.");
