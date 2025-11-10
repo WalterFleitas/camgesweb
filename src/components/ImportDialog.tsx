@@ -88,11 +88,37 @@ export function ImportDialog({ open, onOpenChange, onSuccess }: ImportDialogProp
 
       const data = await file.arrayBuffer();
       const workbook = XLSX.read(data);
+      
+      if (!workbook.SheetNames || workbook.SheetNames.length === 0) {
+        throw new Error("El archivo Excel no contiene hojas de trabajo");
+      }
+      
       const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-      const jsonData = XLSX.utils.sheet_to_json(worksheet);
+      const jsonData = XLSX.utils.sheet_to_json(worksheet, { 
+        defval: "",
+        blankrows: false 
+      });
+
+      console.log("Datos leídos del Excel:", jsonData);
+      console.log("Primera fila:", jsonData[0]);
 
       if (jsonData.length === 0) {
-        throw new Error("El archivo está vacío");
+        throw new Error("El archivo está vacío o no tiene datos. Asegúrate de que la primera fila contenga los nombres de las columnas y que haya datos debajo.");
+      }
+
+      // Validar columnas esperadas para sessions_completo
+      if (tableType === "sessions_completo") {
+        const firstRow: any = jsonData[0];
+        const requiredColumns = ["Disco Nº", "Fecha", "Causa"];
+        const missingColumns = requiredColumns.filter(col => !(col in firstRow));
+        
+        if (missingColumns.length > 0) {
+          const availableColumns = Object.keys(firstRow).join(", ");
+          throw new Error(
+            `Faltan columnas requeridas: ${missingColumns.join(", ")}. ` +
+            `Columnas encontradas: ${availableColumns || "ninguna"}`
+          );
+        }
       }
 
       if (tableType === "sessions_completo") {
