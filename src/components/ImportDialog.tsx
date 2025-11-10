@@ -17,6 +17,18 @@ interface ImportDialogProps {
 
 type TableType = "victims" | "judges" | "psychologists" | "sessions" | "sessions_completo";
 
+interface ImportResult {
+  success: number;
+  errors: Array<{ row: number; message: string }>;
+  warnings: Array<{ row: number; message: string }>;
+  created: {
+    judges?: number;
+    psychologists?: number;
+    victims?: number;
+    sessions?: number;
+  };
+}
+
 export function ImportDialog({ open, onOpenChange, onSuccess }: ImportDialogProps) {
   const { toast } = useToast();
   const [file, setFile] = useState<File | null>(null);
@@ -113,6 +125,44 @@ export function ImportDialog({ open, onOpenChange, onSuccess }: ImportDialogProp
       title: "Plantilla descargada",
       description: "Usa esta plantilla para importar tus registros",
     });
+  };
+
+  const validateRow = (row: any, rowIndex: number, type: TableType): string | null => {
+    if (type === "sessions_completo") {
+      if (!row["Disco Nº"] || isNaN(parseInt(row["Disco Nº"]))) {
+        return "Disco Nº inválido o vacío";
+      }
+      if (!row["Fecha"]) {
+        return "Fecha vacía";
+      }
+      // Validar formato de fecha
+      const fechaStr = row["Fecha"]?.toString().trim();
+      const fechaParts = fechaStr?.split("/");
+      if (!fechaParts || fechaParts.length !== 3) {
+        return "Formato de fecha inválido (debe ser d/m/yyyy)";
+      }
+      if (!row["Causa"] || row["Causa"].toString().trim() === "") {
+        return "Causa vacía";
+      }
+    } else if (type === "sessions") {
+      if (!row.disco_number || isNaN(parseInt(row.disco_number))) {
+        return "disco_number inválido o vacío";
+      }
+      if (!row.session_date) {
+        return "session_date vacía";
+      }
+      if (!row.case_name || row.case_name.toString().trim() === "") {
+        return "case_name vacía";
+      }
+      if (!row.defendant_name || row.defendant_name.toString().trim() === "") {
+        return "defendant_name vacía";
+      }
+    } else if (["victims", "judges", "psychologists"].includes(type)) {
+      if (!row.full_name || row.full_name.toString().trim() === "") {
+        return "full_name vacío";
+      }
+    }
+    return null;
   };
 
   const handleImport = async () => {
@@ -214,155 +264,277 @@ export function ImportDialog({ open, onOpenChange, onSuccess }: ImportDialogProp
         }
       }
 
+      // Inicializar resultado de importación
+      const importResult: ImportResult = {
+        success: 0,
+        errors: [],
+        warnings: [],
+        created: {
+          judges: 0,
+          psychologists: 0,
+          victims: 0,
+          sessions: 0,
+        },
+      };
+
       if (tableType === "sessions_completo") {
         // Procesar el formato completo del Excel del usuario
-        for (const row of jsonData) {
-          const rowData: any = row;
+        for (let i = 0; i < jsonData.length; i++) {
+          const rowData: any = jsonData[i];
+          const rowNumber = i + 2; // +2 porque Excel empieza en 1 y tiene encabezado
+
+          // Validar fila
+          const validationError = validateRow(rowData, rowNumber, tableType);
+          if (validationError) {
+            importResult.errors.push({
+              row: rowNumber,
+              message: validationError,
+            });
+            continue; // Saltar esta fila
+          }
+
+          try {
           
-          // Convertir fecha (formato d/m/yyyy o d/m/yy)
-          let sessionDate = new Date();
-          if (rowData["Fecha"]) {
-            const fechaStr = rowData["Fecha"].toString().trim();
-            const fechaParts = fechaStr.split("/");
-            if (fechaParts.length === 3) {
-              let [day, month, year] = fechaParts.map(p => parseInt(p));
-              
-              // Manejar años de 2 dígitos (00-99)
-              if (year < 100) {
-                // Si es menor a 50, asumimos 2000s, si no 1900s
-                year = year < 50 ? 2000 + year : 1900 + year;
+            // Convertir fecha (formato d/m/yyyy o d/m/yy)
+            let sessionDate = new Date();
+            if (rowData["Fecha"]) {
+              const fechaStr = rowData["Fecha"].toString().trim();
+              const fechaParts = fechaStr.split("/");
+              if (fechaParts.length === 3) {
+                let [day, month, year] = fechaParts.map(p => parseInt(p));
+                
+                // Manejar años de 2 dígitos (00-99)
+                if (year < 100) {
+                  // Si es menor a 50, asumimos 2000s, si no 1900s
+                  year = year < 50 ? 2000 + year : 1900 + year;
+                }
+                
+                // Crear fecha a mediodía para evitar problemas de zona horaria
+                sessionDate = new Date(year, month - 1, day, 12, 0, 0);
               }
-              
-              // Crear fecha a mediodía para evitar problemas de zona horaria
-              sessionDate = new Date(year, month - 1, day, 12, 0, 0);
             }
-          }
 
-          // Buscar o crear juez
-          let judgeId = null;
-          if (rowData["Juzgado o Fiscalí"]) {
-            const judgeName = rowData["Juzgado o Fiscalí"].toString().trim();
-            const { data: existingJudge } = await supabase
-              .from("judges")
-              .select("id")
-              .ilike("full_name", judgeName)
-              .eq("user_id", user.id)
-              .maybeSingle();
-
-            if (existingJudge) {
-              judgeId = existingJudge.id;
-            } else {
-              const { data: newJudge, error: judgeError } = await supabase
+            // Buscar o crear juez
+            let judgeId = null;
+            if (rowData["Juzgado o Fiscalí"]) {
+              const judgeName = rowData["Juzgado o Fiscalí"].toString().trim();
+              const { data: existingJudge } = await supabase
                 .from("judges")
-                .insert({ full_name: judgeName, user_id: user.id })
                 .select("id")
-                .single();
-              
-              if (!judgeError && newJudge) {
-                judgeId = newJudge.id;
+                .ilike("full_name", judgeName)
+                .eq("user_id", user.id)
+                .maybeSingle();
+
+              if (existingJudge) {
+                judgeId = existingJudge.id;
+              } else {
+                const { data: newJudge, error: judgeError } = await supabase
+                  .from("judges")
+                  .insert({ full_name: judgeName, user_id: user.id })
+                  .select("id")
+                  .single();
+                
+                if (!judgeError && newJudge) {
+                  judgeId = newJudge.id;
+                  importResult.created.judges!++;
+                }
               }
-            }
-          }
-
-          // Buscar o crear psicólogo
-          let psychologistId = null;
-          if (rowData["Psicóloga"] && rowData["Psicóloga"].toString().trim()) {
-            const psychologistName = rowData["Psicóloga"].toString().trim();
-            const { data: existingPsych } = await supabase
-              .from("psychologists")
-              .select("id")
-              .ilike("full_name", psychologistName)
-              .eq("user_id", user.id)
-              .maybeSingle();
-
-            if (existingPsych) {
-              psychologistId = existingPsych.id;
             } else {
-              const { data: newPsych, error: psychError } = await supabase
+              importResult.warnings.push({
+                row: rowNumber,
+                message: "Juzgado o Fiscalía vacío",
+              });
+            }
+
+            // Buscar o crear psicólogo
+            let psychologistId = null;
+            if (rowData["Psicóloga"] && rowData["Psicóloga"].toString().trim()) {
+              const psychologistName = rowData["Psicóloga"].toString().trim();
+              const { data: existingPsych } = await supabase
                 .from("psychologists")
-                .insert({ full_name: psychologistName, user_id: user.id })
                 .select("id")
-                .single();
-              
-              if (!psychError && newPsych) {
-                psychologistId = newPsych.id;
+                .ilike("full_name", psychologistName)
+                .eq("user_id", user.id)
+                .maybeSingle();
+
+              if (existingPsych) {
+                psychologistId = existingPsych.id;
+              } else {
+                const { data: newPsych, error: psychError } = await supabase
+                  .from("psychologists")
+                  .insert({ full_name: psychologistName, user_id: user.id })
+                  .select("id")
+                  .single();
+                
+                if (!psychError && newPsych) {
+                  psychologistId = newPsych.id;
+                  importResult.created.psychologists!++;
+                }
               }
             }
-          }
 
-          // Buscar o crear víctima
-          let victimId = null;
-          if (rowData["Nombre/Apellido - Firma"] && rowData["Nombre/Apellido - Firma"].toString().trim() !== "Si") {
-            const victimName = rowData["Nombre/Apellido - Firma"].toString().trim();
-            const { data: existingVictim } = await supabase
-              .from("victims")
-              .select("id")
-              .ilike("full_name", victimName)
-              .eq("user_id", user.id)
-              .maybeSingle();
-
-            if (existingVictim) {
-              victimId = existingVictim.id;
-            } else {
-              const { data: newVictim, error: victimError } = await supabase
+            // Buscar o crear víctima
+            let victimId = null;
+            if (rowData["Nombre/Apellido - Firma"] && rowData["Nombre/Apellido - Firma"].toString().trim() !== "Si") {
+              const victimName = rowData["Nombre/Apellido - Firma"].toString().trim();
+              const { data: existingVictim } = await supabase
                 .from("victims")
-                .insert({ full_name: victimName, user_id: user.id })
                 .select("id")
-                .single();
-              
-              if (!victimError && newVictim) {
-                victimId = newVictim.id;
+                .ilike("full_name", victimName)
+                .eq("user_id", user.id)
+                .maybeSingle();
+
+              if (existingVictim) {
+                victimId = existingVictim.id;
+              } else {
+                const { data: newVictim, error: victimError } = await supabase
+                  .from("victims")
+                  .insert({ full_name: victimName, user_id: user.id })
+                  .select("id")
+                  .single();
+                
+                if (!victimError && newVictim) {
+                  victimId = newVictim.id;
+                  importResult.created.victims!++;
+                }
               }
             }
-          }
 
-          // Insertar sesión
-          const sessionData = {
-            user_id: user.id,
-            disco_number: parseInt(rowData["Disco Nº"]) || 0,
-            session_date: sessionDate.toISOString(),
-            oficio_number: rowData["Oficio N°"]?.toString() || null,
-            case_name: rowData["Causa"]?.toString() || "Sin especificar",
-            defendant_name: "N/A",
-            cantidad_copias: parseInt(rowData["Cant. Cop."]) || null,
-            judge_id: judgeId,
-            psychologist_id: psychologistId,
-            victim_id: victimId,
-          };
+            // Insertar sesión
+            const sessionData = {
+              user_id: user.id,
+              disco_number: parseInt(rowData["Disco Nº"]) || 0,
+              session_date: sessionDate.toISOString(),
+              oficio_number: rowData["Oficio N°"]?.toString() || null,
+              case_name: rowData["Causa"]?.toString() || "Sin especificar",
+              defendant_name: "N/A",
+              cantidad_copias: parseInt(rowData["Cant. Cop."]) || null,
+              judge_id: judgeId,
+              psychologist_id: psychologistId,
+              victim_id: victimId,
+            };
 
-          const { error: sessionError } = await supabase
-            .from("sessions")
-            .insert(sessionData);
+            const { error: sessionError } = await supabase
+              .from("sessions")
+              .insert(sessionData);
 
-          if (sessionError) {
-            console.error("Error inserting session:", sessionError);
-            throw sessionError;
+            if (sessionError) {
+              console.error("Error inserting session:", sessionError);
+              importResult.errors.push({
+                row: rowNumber,
+                message: `Error al insertar: ${sessionError.message}`,
+              });
+            } else {
+              importResult.created.sessions!++;
+              importResult.success++;
+            }
+          } catch (rowError: any) {
+            console.error(`Error en fila ${rowNumber}:`, rowError);
+            importResult.errors.push({
+              row: rowNumber,
+              message: rowError.message || "Error desconocido",
+            });
           }
         }
 
+        // Mostrar resumen detallado
+        const summaryParts = [];
+        if (importResult.success > 0) {
+          summaryParts.push(`✓ ${importResult.success} sesiones importadas`);
+        }
+        if (importResult.created.judges! > 0) {
+          summaryParts.push(`${importResult.created.judges} jueces creados`);
+        }
+        if (importResult.created.psychologists! > 0) {
+          summaryParts.push(`${importResult.created.psychologists} psicólogos creados`);
+        }
+        if (importResult.created.victims! > 0) {
+          summaryParts.push(`${importResult.created.victims} víctimas creadas`);
+        }
+        
+        let description = summaryParts.join(", ");
+        
+        if (importResult.errors.length > 0) {
+          description += `\n\n⚠ ${importResult.errors.length} filas con errores (ver consola)`;
+          console.group("Errores de importación");
+          importResult.errors.forEach(err => {
+            console.error(`Fila ${err.row}: ${err.message}`);
+          });
+          console.groupEnd();
+        }
+        
+        if (importResult.warnings.length > 0) {
+          description += `\n💡 ${importResult.warnings.length} advertencias (ver consola)`;
+          console.group("Advertencias de importación");
+          importResult.warnings.forEach(warn => {
+            console.warn(`Fila ${warn.row}: ${warn.message}`);
+          });
+          console.groupEnd();
+        }
+
         toast({
-          title: "Importación exitosa",
-          description: `Se importaron ${jsonData.length} registros`,
+          title: importResult.errors.length > 0 ? "Importación completada con errores" : "Importación exitosa",
+          description,
+          variant: importResult.errors.length > 0 ? "destructive" : "default",
         });
       } else {
-        // Preparar datos con user_id (formato original)
-        const dataWithUserId = jsonData.map((row: any) => ({
-          ...row,
-          user_id: user.id,
-          // Convertir fecha para sessions si es necesario
-          ...(tableType === "sessions" && row.session_date
-            ? { session_date: new Date(row.session_date).toISOString() }
-            : {}),
-        }));
+        // Validar y procesar formato original
+        for (let i = 0; i < jsonData.length; i++) {
+          const row: any = jsonData[i];
+          const rowNumber = i + 2;
 
-        // Insertar en la tabla correspondiente
-        const { error } = await supabase.from(tableType).insert(dataWithUserId);
+          const validationError = validateRow(row, rowNumber, tableType);
+          if (validationError) {
+            importResult.errors.push({
+              row: rowNumber,
+              message: validationError,
+            });
+            continue;
+          }
 
-        if (error) throw error;
+          try {
+            const rowData = {
+              ...row,
+              user_id: user.id,
+              ...(tableType === "sessions" && row.session_date
+                ? { session_date: new Date(row.session_date).toISOString() }
+                : {}),
+            };
+
+            const { error } = await supabase.from(tableType).insert(rowData);
+
+            if (error) {
+              importResult.errors.push({
+                row: rowNumber,
+                message: `Error al insertar: ${error.message}`,
+              });
+            } else {
+              importResult.success++;
+            }
+          } catch (rowError: any) {
+            importResult.errors.push({
+              row: rowNumber,
+              message: rowError.message || "Error desconocido",
+            });
+          }
+        }
+
+        // Mostrar resumen
+        let description = `✓ ${importResult.success} registros importados`;
+        
+        if (importResult.errors.length > 0) {
+          description += `\n⚠ ${importResult.errors.length} filas con errores (ver consola)`;
+          console.group("Errores de importación");
+          importResult.errors.forEach(err => {
+            console.error(`Fila ${err.row}: ${err.message}`);
+          });
+          console.groupEnd();
+        }
 
         toast({
-          title: "Importación exitosa",
-          description: `Se importaron ${jsonData.length} registros`,
+          title: importResult.errors.length > 0 ? "Importación completada con errores" : "Importación exitosa",
+          description,
+          variant: importResult.errors.length > 0 ? "destructive" : "default",
         });
       }
 
