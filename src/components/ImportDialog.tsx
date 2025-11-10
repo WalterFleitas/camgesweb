@@ -219,13 +219,22 @@ export function ImportDialog({ open, onOpenChange, onSuccess }: ImportDialogProp
         for (const row of jsonData) {
           const rowData: any = row;
           
-          // Convertir fecha (formato d/m/yyyy)
+          // Convertir fecha (formato d/m/yyyy o d/m/yy)
           let sessionDate = new Date();
           if (rowData["Fecha"]) {
-            const fechaParts = rowData["Fecha"].toString().split("/");
+            const fechaStr = rowData["Fecha"].toString().trim();
+            const fechaParts = fechaStr.split("/");
             if (fechaParts.length === 3) {
-              const [day, month, year] = fechaParts;
-              sessionDate = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+              let [day, month, year] = fechaParts.map(p => parseInt(p));
+              
+              // Manejar años de 2 dígitos (00-99)
+              if (year < 100) {
+                // Si es menor a 50, asumimos 2000s, si no 1900s
+                year = year < 50 ? 2000 + year : 1900 + year;
+              }
+              
+              // Crear fecha a mediodía para evitar problemas de zona horaria
+              sessionDate = new Date(year, month - 1, day, 12, 0, 0);
             }
           }
 
