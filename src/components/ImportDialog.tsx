@@ -23,9 +23,54 @@ export function ImportDialog({ open, onOpenChange, onSuccess }: ImportDialogProp
   const [tableType, setTableType] = useState<TableType>("victims");
   const [isLoading, setIsLoading] = useState(false);
 
+  const validateExcelFile = (file: File): boolean => {
+    // Validar extensión
+    const validExtensions = ['.xlsx', '.xls'];
+    const fileName = file.name.toLowerCase();
+    const hasValidExtension = validExtensions.some(ext => fileName.endsWith(ext));
+    
+    if (!hasValidExtension) {
+      toast({
+        title: "Formato inválido",
+        description: "Por favor selecciona un archivo Excel (.xlsx o .xls)",
+        variant: "destructive",
+      });
+      return false;
+    }
+
+    // Validar tamaño (máximo 10MB)
+    const maxSize = 10 * 1024 * 1024; // 10MB
+    if (file.size > maxSize) {
+      toast({
+        title: "Archivo muy grande",
+        description: "El archivo no debe superar los 10MB",
+        variant: "destructive",
+      });
+      return false;
+    }
+
+    // Validar que no esté vacío
+    if (file.size === 0) {
+      toast({
+        title: "Archivo vacío",
+        description: "El archivo seleccionado está vacío",
+        variant: "destructive",
+      });
+      return false;
+    }
+
+    return true;
+  };
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setFile(e.target.files[0]);
+      const selectedFile = e.target.files[0];
+      if (validateExcelFile(selectedFile)) {
+        setFile(selectedFile);
+      } else {
+        // Limpiar el input si el archivo no es válido
+        e.target.value = '';
+      }
     }
   };
 
@@ -86,17 +131,39 @@ export function ImportDialog({ open, onOpenChange, onSuccess }: ImportDialogProp
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Usuario no autenticado");
 
-      const data = await file.arrayBuffer();
-      const workbook = XLSX.read(data, { type: 'array' });
+      let data: ArrayBuffer;
+      let workbook: XLSX.WorkBook;
+
+      try {
+        data = await file.arrayBuffer();
+        workbook = XLSX.read(data, { type: 'array' });
+      } catch (parseError) {
+        console.error("Error al leer archivo Excel:", parseError);
+        throw new Error(
+          "El archivo Excel está corrupto o no se puede leer. " +
+          "Por favor verifica que sea un archivo Excel válido (.xlsx o .xls)"
+        );
+      }
       
       console.log("Hojas disponibles:", workbook.SheetNames);
       
       if (!workbook.SheetNames || workbook.SheetNames.length === 0) {
-        throw new Error("El archivo Excel no contiene hojas de trabajo");
+        throw new Error(
+          "El archivo Excel no contiene hojas de trabajo visibles. " +
+          "Asegúrate de que el archivo tenga al menos una hoja con datos."
+        );
       }
       
       const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-      console.log("Rango de la hoja:", worksheet['!ref']);
+      const sheetRange = worksheet['!ref'];
+      console.log("Rango de la hoja:", sheetRange);
+      
+      if (!sheetRange) {
+        throw new Error(
+          "La hoja de Excel está vacía. " +
+          "Asegúrate de que la primera hoja contenga datos."
+        );
+      }
       
       const jsonData = XLSX.utils.sheet_to_json(worksheet, { 
         defval: null,
@@ -109,7 +176,13 @@ export function ImportDialog({ open, onOpenChange, onSuccess }: ImportDialogProp
       console.log("Total de filas:", jsonData.length);
 
       if (jsonData.length === 0) {
-        throw new Error("El archivo está vacío o no tiene datos. Asegúrate de que la primera fila contenga los nombres de las columnas y que haya datos debajo.");
+        throw new Error(
+          "No se encontraron datos en el archivo. " +
+          "Verifica que:\n" +
+          "1. La primera fila contenga los nombres de las columnas\n" +
+          "2. Haya al menos una fila de datos debajo de los encabezados\n" +
+          "3. Las celdas no estén completamente vacías"
+        );
       }
 
       // Validar columnas esperadas para sessions_completo
