@@ -16,11 +16,15 @@ const Reports = () => {
       const start = startOfMonth(selectedMonth);
       const end = endOfMonth(selectedMonth);
 
+      // Format dates as YYYY-MM-DD for proper comparison
+      const startDate = format(start, "yyyy-MM-dd");
+      const endDate = format(end, "yyyy-MM-dd");
+
       const { data: sessions, error: sessionsError } = await supabase
         .from("sessions")
         .select("*, victims(*), judges(*), psychologists(*)")
-        .gte("session_date", start.toISOString())
-        .lte("session_date", end.toISOString());
+        .gte("session_date", startDate)
+        .lte("session_date", endDate);
 
       if (sessionsError) throw sessionsError;
 
