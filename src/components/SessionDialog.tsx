@@ -89,7 +89,7 @@ export function SessionDialog({ open, onOpenChange, onSuccess, session }: Sessio
 
       const payload = {
         disco_number: parseInt(formData.disco_number),
-        session_date: new Date(formData.session_date).toISOString(),
+        session_date: formData.session_date,
         case_name: formData.case_name,
         defendant_name: formData.defendant_name,
         victim_id: formData.victim_id ? parseInt(formData.victim_id) : null,
