@@ -8,6 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { FileSpreadsheet, Upload, Trash2, Download, FileText, Image, File, MessageSquare } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useUserRole } from "@/hooks/useUserRole";
 
 interface Document {
   id: string;
@@ -26,6 +27,7 @@ const Documents = () => {
   const [uploading, setUploading] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [description, setDescription] = useState("");
+  const { isAdmin } = useUserRole();
 
   useEffect(() => {
     fetchDocuments();
@@ -196,52 +198,54 @@ const Documents = () => {
         <p className="text-muted-foreground">Gestión de oficios y documentos judiciales</p>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Upload className="h-5 w-5" />
-            Subir Documento
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="file" className="flex items-center gap-2">
-              <File className="h-4 w-4" />
-              Archivo (PDF, Word, imágenes)
-            </Label>
-            <Input
-              id="file"
-              type="file"
-              accept="image/*,.pdf,.doc,.docx"
-              onChange={handleFileChange}
-              disabled={uploading}
-            />
-            {selectedFile && (
-              <p className="text-sm text-muted-foreground">
-                Archivo seleccionado: {selectedFile.name} ({formatFileSize(selectedFile.size)})
-              </p>
-            )}
-          </div>
+      {isAdmin && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Upload className="h-5 w-5" />
+              Subir Documento
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="file" className="flex items-center gap-2">
+                <File className="h-4 w-4" />
+                Archivo (PDF, Word, imágenes)
+              </Label>
+              <Input
+                id="file"
+                type="file"
+                accept="image/*,.pdf,.doc,.docx"
+                onChange={handleFileChange}
+                disabled={uploading}
+              />
+              {selectedFile && (
+                <p className="text-sm text-muted-foreground">
+                  Archivo seleccionado: {selectedFile.name} ({formatFileSize(selectedFile.size)})
+                </p>
+              )}
+            </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="description" className="flex items-center gap-2">
-              <MessageSquare className="h-4 w-4" />
-              Descripción (opcional)
-            </Label>
-            <Textarea
-              id="description"
-              placeholder="Descripción del documento..."
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              disabled={uploading}
-            />
-          </div>
+            <div className="space-y-2">
+              <Label htmlFor="description" className="flex items-center gap-2">
+                <MessageSquare className="h-4 w-4" />
+                Descripción (opcional)
+              </Label>
+              <Textarea
+                id="description"
+                placeholder="Descripción del documento..."
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                disabled={uploading}
+              />
+            </div>
 
-          <Button onClick={handleUpload} disabled={!selectedFile || uploading}>
-            {uploading ? "Subiendo..." : "Subir Documento"}
-          </Button>
-        </CardContent>
-      </Card>
+            <Button onClick={handleUpload} disabled={!selectedFile || uploading}>
+              {uploading ? "Subiendo..." : "Subir Documento"}
+            </Button>
+          </CardContent>
+        </Card>
+      )}
 
       <Card>
         <CardHeader>
@@ -293,13 +297,15 @@ const Documents = () => {
                         >
                           <Download className="h-4 w-4" />
                         </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleDelete(doc)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
+                        {isAdmin && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleDelete(doc)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        )}
                       </div>
                     </TableCell>
                   </TableRow>

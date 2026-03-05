@@ -21,9 +21,10 @@ import {
 interface SessionsTableProps {
   sessions: any[];
   onUpdate: () => void;
+  isAdmin?: boolean;
 }
 
-export function SessionsTable({ sessions, onUpdate }: SessionsTableProps) {
+export function SessionsTable({ sessions, onUpdate, isAdmin = false }: SessionsTableProps) {
   const { toast } = useToast();
   const [editingSession, setEditingSession] = useState<any>(null);
   const [deletingSessionId, setDeletingSessionId] = useState<number | null>(null);
@@ -69,7 +70,7 @@ export function SessionsTable({ sessions, onUpdate }: SessionsTableProps) {
               <TableHead>Víctima</TableHead>
               <TableHead>Juez/a</TableHead>
               <TableHead>Psicólogo/a</TableHead>
-              <TableHead className="text-right">Acciones</TableHead>
+              {isAdmin && <TableHead className="text-right">Acciones</TableHead>}
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -84,24 +85,26 @@ export function SessionsTable({ sessions, onUpdate }: SessionsTableProps) {
                 <TableCell>{session.victims?.full_name || "-"}</TableCell>
                 <TableCell>{session.judges?.full_name || "-"}</TableCell>
                 <TableCell>{session.psychologists?.full_name || "-"}</TableCell>
-                <TableCell className="text-right">
-                  <div className="flex justify-end gap-2">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => setEditingSession(session)}
-                    >
-                      <Pencil className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => setDeletingSessionId(session.id)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </TableCell>
+                {isAdmin && (
+                  <TableCell className="text-right">
+                    <div className="flex justify-end gap-2">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setEditingSession(session)}
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setDeletingSessionId(session.id)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                )}
               </TableRow>
             ))}
           </TableBody>

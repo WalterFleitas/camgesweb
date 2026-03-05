@@ -11,6 +11,7 @@ import Victims from "./pages/Victims";
 import Staff from "./pages/Staff";
 import Documents from "./pages/Documents";
 import Auth from "./pages/Auth";
+import UserManagement from "./pages/UserManagement";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -29,6 +30,7 @@ const App = () => (
           <Route path="/victims" element={<Layout><Victims /></Layout>} />
           <Route path="/staff" element={<Layout><Staff /></Layout>} />
           <Route path="/documents" element={<Layout><Documents /></Layout>} />
+          <Route path="/users" element={<Layout><UserManagement /></Layout>} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
