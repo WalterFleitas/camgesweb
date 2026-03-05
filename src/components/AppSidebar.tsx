@@ -1,4 +1,4 @@
-import { Video, Search, FileText, Users, Briefcase, FileSpreadsheet, LogOut } from "lucide-react";
+import { Video, Search, FileText, Users, Briefcase, FileSpreadsheet, LogOut, Shield } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
 import {
   Sidebar,
@@ -15,6 +15,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import logoPoderJudicialFull from "@/assets/logo-poder-judicial-full.png";
+import { useUserRole } from "@/hooks/useUserRole";
 
 const menuItems = [
   { title: "Sesiones de Cámara Gesell", url: "/", icon: Video },
@@ -28,6 +29,7 @@ const menuItems = [
 export function AppSidebar() {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { isAdmin } = useUserRole();
 
   const handleSignOut = async () => {
     const { error } = await supabase.auth.signOut();
@@ -76,6 +78,28 @@ export function AppSidebar() {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+        {isAdmin && (
+          <SidebarGroup>
+            <SidebarGroupLabel>Administración</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild>
+                    <NavLink
+                      to="/users"
+                      className={({ isActive }) =>
+                        isActive ? "bg-sidebar-accent text-sidebar-accent-foreground" : ""
+                      }
+                    >
+                      <Shield className="h-4 w-4" />
+                      <span>Gestión de Usuarios</span>
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
       </SidebarContent>
       <SidebarFooter>
         <Button
