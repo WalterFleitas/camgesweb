@@ -8,12 +8,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { StaffTable } from "@/components/StaffTable";
 import { StaffDialog } from "@/components/StaffDialog";
 import { ImportDialog } from "@/components/ImportDialog";
+import { useUserRole } from "@/hooks/useUserRole";
 
 const Staff = () => {
   const [activeTab, setActiveTab] = useState("judges");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isImportOpen, setIsImportOpen] = useState(false);
   const [staffType, setStaffType] = useState<"judges" | "psychologists">("judges");
+  const { isAdmin } = useUserRole();
 
   const { data: judges, refetch: refetchJudges } = useQuery({
     queryKey: ["judges"],
@@ -66,16 +68,18 @@ const Staff = () => {
                 <TabsTrigger value="judges">Jueces</TabsTrigger>
                 <TabsTrigger value="psychologists">Psicólogos</TabsTrigger>
               </TabsList>
-              <div className="flex gap-2">
-                <Button variant="outline" onClick={() => setIsImportOpen(true)}>
-                  <FileUp className="h-4 w-4 mr-2" />
-                  Importar Excel
-                </Button>
-                <Button onClick={() => handleNewStaff(activeTab === "judges" ? "judges" : "psychologists")}>
-                  <Plus className="h-4 w-4 mr-2" />
-                  {activeTab === "judges" ? "Nuevo Juez/a" : "Nuevo Psicólogo/a"}
-                </Button>
-              </div>
+              {isAdmin && (
+                <div className="flex gap-2">
+                  <Button variant="outline" onClick={() => setIsImportOpen(true)}>
+                    <FileUp className="h-4 w-4 mr-2" />
+                    Importar Excel
+                  </Button>
+                  <Button onClick={() => handleNewStaff(activeTab === "judges" ? "judges" : "psychologists")}>
+                    <Plus className="h-4 w-4 mr-2" />
+                    {activeTab === "judges" ? "Nuevo Juez/a" : "Nuevo Psicólogo/a"}
+                  </Button>
+                </div>
+              )}
             </div>
           </Tabs>
         </CardHeader>
