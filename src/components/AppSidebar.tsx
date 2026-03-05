@@ -16,20 +16,22 @@ import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import logoPoderJudicialFull from "@/assets/logo-poder-judicial-full.png";
 import { useUserRole } from "@/hooks/useUserRole";
+import { useModulePermissions, type ModuleKey } from "@/hooks/useModulePermissions";
 
-const menuItems = [
-  { title: "Sesiones de Cámara Gesell", url: "/", icon: Video },
-  { title: "Búsqueda de Sesiones", url: "/search", icon: Search },
-  { title: "Informes y Reportes", url: "/reports", icon: FileText },
-  { title: "Gestión de Víctimas", url: "/victims", icon: Users },
-  { title: "Gestión de Personal", url: "/staff", icon: Briefcase },
-  { title: "Oficios y Documentos", url: "/documents", icon: FileSpreadsheet },
+const menuItems: { title: string; url: string; icon: any; moduleKey: ModuleKey }[] = [
+  { title: "Sesiones de Cámara Gesell", url: "/", icon: Video, moduleKey: "sessions" },
+  { title: "Búsqueda de Sesiones", url: "/search", icon: Search, moduleKey: "search" },
+  { title: "Informes y Reportes", url: "/reports", icon: FileText, moduleKey: "reports" },
+  { title: "Gestión de Víctimas", url: "/victims", icon: Users, moduleKey: "victims" },
+  { title: "Gestión de Personal", url: "/staff", icon: Briefcase, moduleKey: "staff" },
+  { title: "Oficios y Documentos", url: "/documents", icon: FileSpreadsheet, moduleKey: "documents" },
 ];
 
 export function AppSidebar() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { isAdmin } = useUserRole();
+  const { hasAccess } = useModulePermissions();
 
   const handleSignOut = async () => {
     const { error } = await supabase.auth.signOut();
@@ -48,6 +50,8 @@ export function AppSidebar() {
     }
   };
 
+  const visibleItems = menuItems.filter((item) => hasAccess(item.moduleKey));
+
   return (
     <Sidebar>
       <SidebarContent>
@@ -58,7 +62,7 @@ export function AppSidebar() {
           <SidebarGroupLabel>Módulos</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {menuItems.map((item) => (
+              {visibleItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
                     <NavLink
