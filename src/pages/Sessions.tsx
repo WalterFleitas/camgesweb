@@ -7,11 +7,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { SessionDialog } from "@/components/SessionDialog";
 import { SessionsTable } from "@/components/SessionsTable";
 import { ImportDialog } from "@/components/ImportDialog";
+import { useUserRole } from "@/hooks/useUserRole";
 
 const Sessions = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isImportOpen, setIsImportOpen] = useState(false);
-
+  const { isAdmin } = useUserRole();
   const { data: sessions, isLoading, refetch } = useQuery({
     queryKey: ["sessions"],
     queryFn: async () => {
@@ -37,16 +38,18 @@ const Sessions = () => {
           <h1 className="text-3xl font-bold tracking-tight">Registro de Sesiones de Cámara Gesell</h1>
           <p className="text-muted-foreground">Gestión de sesiones y causas judiciales</p>
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={() => setIsImportOpen(true)}>
-            <FileUp className="h-4 w-4 mr-2" />
-            Importar Excel
-          </Button>
-          <Button onClick={() => setIsDialogOpen(true)}>
-            <Plus className="h-4 w-4 mr-2" />
-            Nueva Sesión
-          </Button>
-        </div>
+        {isAdmin && (
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={() => setIsImportOpen(true)}>
+              <FileUp className="h-4 w-4 mr-2" />
+              Importar Excel
+            </Button>
+            <Button onClick={() => setIsDialogOpen(true)}>
+              <Plus className="h-4 w-4 mr-2" />
+              Nueva Sesión
+            </Button>
+          </div>
+        )}
       </div>
 
       <Card>
@@ -57,7 +60,7 @@ const Sessions = () => {
           {isLoading ? (
             <div className="text-center py-8 text-muted-foreground">Cargando sesiones...</div>
           ) : sessions && sessions.length > 0 ? (
-            <SessionsTable sessions={sessions} onUpdate={refetch} />
+            <SessionsTable sessions={sessions} onUpdate={refetch} isAdmin={isAdmin} />
           ) : (
             <div className="text-center py-12 text-muted-foreground">
               No hay sesiones registradas. Haz clic en "Nueva Sesión" para comenzar.
