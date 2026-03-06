@@ -153,7 +153,9 @@ const Reports = () => {
       styles: { fontSize: 8 },
     });
 
-    doc.save(`Informe_Gesell_${format(selectedMonth, "yyyy-MM")}.pdf`);
+    const pdfBlob = doc.output("blob");
+    const url = URL.createObjectURL(pdfBlob);
+    window.open(url, "_blank");
   };
 
   return (
