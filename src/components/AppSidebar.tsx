@@ -55,8 +55,8 @@ export function AppSidebar() {
   return (
     <Sidebar>
       <SidebarContent>
-        <div className="px-6 py-6 border-b">
-          <img src={logoPoderJudicialFull} alt="Poder Judicial" className="h-24 w-full object-contain" />
+        <div className="px-4 py-5 border-b">
+          <img src={logoPoderJudicialFull} alt="Poder Judicial" className="h-auto w-full max-h-32 object-contain" />
         </div>
         <SidebarGroup>
           <SidebarGroupLabel>Módulos</SidebarGroupLabel>
