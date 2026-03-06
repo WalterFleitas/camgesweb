@@ -153,15 +153,7 @@ const Reports = () => {
       styles: { fontSize: 8 },
     });
 
-    const pdfDataUri = doc.output("dataurlstring");
-    const newWindow = window.open();
-    if (newWindow) {
-      newWindow.document.write(`<iframe width="100%" height="100%" src="${pdfDataUri}" style="border:none;position:absolute;top:0;left:0;right:0;bottom:0;"></iframe>`);
-      newWindow.document.title = `Informe Gesell - ${format(selectedMonth, "MMMM yyyy", { locale: es })}`;
-    } else {
-      // Fallback: descargar directamente si el popup es bloqueado
-      doc.save(`Informe_Gesell_${format(selectedMonth, "yyyy-MM")}.pdf`);
-    }
+    doc.save(`Informe_Gesell_${format(selectedMonth, "yyyy-MM")}.pdf`);
   };
 
   return (
