@@ -23,7 +23,7 @@ export function SessionDialog({ open, onOpenChange, onSuccess, session }: Sessio
     session_date: "",
     case_name: "",
     defendant_name: "",
-    victim_id: "",
+    victim_name: "",
     judge_id: "",
     psychologist_id: "",
   });
