@@ -8,6 +8,7 @@ import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, eachWeekOfInt
 import { es } from "date-fns/locale";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import logoPoderJudicial from "@/assets/logo-poder-judicial-full.png";
 
 interface SessionWithRelations {
   id: number;
@@ -79,23 +80,42 @@ const Reports = () => {
     .sort((a, b) => b[1] - a[1]);
 
   const generatePDF = () => {
-    const doc = new jsPDF();
-    const monthLabel = format(selectedMonth, "MMMM 'de' yyyy", { locale: es });
-    const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.src = logoPoderJudicial;
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      canvas.width = img.naturalWidth;
+      canvas.height = img.naturalHeight;
+      const ctx = canvas.getContext("2d")!;
+      ctx.drawImage(img, 0, 0);
+      const logoBase64 = canvas.toDataURL("image/png");
 
-    // Title
-    doc.setFontSize(18);
-    doc.text("Informe de Cámara Gesell", 14, 20);
-    doc.setFontSize(12);
-    doc.text(`Período: ${capitalize(monthLabel)}`, 14, 28);
-    doc.setFontSize(10);
-    doc.text(`Generado: ${format(new Date(), "dd/MM/yyyy HH:mm")}`, 14, 34);
+      const doc = new jsPDF();
+      const monthLabel = format(selectedMonth, "MMMM 'de' yyyy", { locale: es });
+      const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
-    // General stats
-    doc.setFontSize(14);
-    doc.text("Resumen General", 14, 46);
-    autoTable(doc, {
-      startY: 50,
+      // Logo
+      const logoWidth = 50;
+      const logoHeight = (img.naturalHeight / img.naturalWidth) * logoWidth;
+      doc.addImage(logoBase64, "PNG", 14, 10, logoWidth, logoHeight);
+
+      // Title (next to logo)
+      const titleX = 70;
+      doc.setFontSize(18);
+      doc.text("Informe de Cámara Gesell", titleX, 18);
+      doc.setFontSize(12);
+      doc.text(`Período: ${capitalize(monthLabel)}`, titleX, 26);
+      doc.setFontSize(10);
+      doc.text(`Generado: ${format(new Date(), "dd/MM/yyyy HH:mm")}`, titleX, 32);
+
+      const contentStartY = Math.max(10 + logoHeight + 6, 40);
+
+      // General stats
+      doc.setFontSize(14);
+      doc.text("Resumen General", 14, contentStartY);
+      autoTable(doc, {
+        startY: contentStartY + 4,
       head: [["Indicador", "Cantidad"]],
       body: [
         ["Total de sesiones en el mes", String(totalSessions)],
@@ -153,7 +173,8 @@ const Reports = () => {
       styles: { fontSize: 8 },
     });
 
-    doc.save(`Informe_Gesell_${format(selectedMonth, "yyyy-MM")}.pdf`);
+      doc.save(`Informe_Gesell_${format(selectedMonth, "yyyy-MM")}.pdf`);
+    };
   };
 
   return (
