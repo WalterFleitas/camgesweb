@@ -92,7 +92,7 @@ export function SessionDialog({ open, onOpenChange, onSuccess, session }: Sessio
         session_date: formData.session_date,
         case_name: formData.case_name,
         defendant_name: formData.defendant_name,
-        victim_id: formData.victim_id ? parseInt(formData.victim_id) : null,
+        victim_name: formData.victim_name || null,
         judge_id: formData.judge_id ? parseInt(formData.judge_id) : null,
         psychologist_id: formData.psychologist_id ? parseInt(formData.psychologist_id) : null,
         user_id: user.id,
