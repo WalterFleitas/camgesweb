@@ -8,6 +8,7 @@ import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, eachWeekOfInt
 import { es } from "date-fns/locale";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import logoPoderJudicial from "@/assets/logo-poder-judicial-full.png";
 
 interface SessionWithRelations {
   id: number;
