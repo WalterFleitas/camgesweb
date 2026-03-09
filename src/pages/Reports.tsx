@@ -173,7 +173,8 @@ const Reports = () => {
       styles: { fontSize: 8 },
     });
 
-    doc.save(`Informe_Gesell_${format(selectedMonth, "yyyy-MM")}.pdf`);
+      doc.save(`Informe_Gesell_${format(selectedMonth, "yyyy-MM")}.pdf`);
+    };
   };
 
   return (
