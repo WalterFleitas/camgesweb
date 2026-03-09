@@ -23,18 +23,9 @@ export function SessionDialog({ open, onOpenChange, onSuccess, session }: Sessio
     session_date: "",
     case_name: "",
     defendant_name: "",
-    victim_id: "",
+    victim_name: "",
     judge_id: "",
     psychologist_id: "",
-  });
-
-  const { data: victims } = useQuery({
-    queryKey: ["victims"],
-    queryFn: async () => {
-      const { data, error } = await supabase.from("victims").select("*").order("full_name");
-      if (error) throw error;
-      return data;
-    },
   });
 
   const { data: judges } = useQuery({
@@ -62,7 +53,7 @@ export function SessionDialog({ open, onOpenChange, onSuccess, session }: Sessio
         session_date: new Date(session.session_date).toISOString().slice(0, 16),
         case_name: session.case_name,
         defendant_name: session.defendant_name,
-        victim_id: session.victim_id?.toString() || "",
+        victim_name: session.victim_name || session.victims?.full_name || "",
         judge_id: session.judge_id?.toString() || "",
         psychologist_id: session.psychologist_id?.toString() || "",
       });
@@ -72,7 +63,7 @@ export function SessionDialog({ open, onOpenChange, onSuccess, session }: Sessio
         session_date: "",
         case_name: "",
         defendant_name: "",
-        victim_id: "",
+        victim_name: "",
         judge_id: "",
         psychologist_id: "",
       });
@@ -92,7 +83,7 @@ export function SessionDialog({ open, onOpenChange, onSuccess, session }: Sessio
         session_date: formData.session_date,
         case_name: formData.case_name,
         defendant_name: formData.defendant_name,
-        victim_id: formData.victim_id ? parseInt(formData.victim_id) : null,
+        victim_name: formData.victim_name || null,
         judge_id: formData.judge_id ? parseInt(formData.judge_id) : null,
         psychologist_id: formData.psychologist_id ? parseInt(formData.psychologist_id) : null,
         user_id: user.id,
@@ -179,19 +170,13 @@ export function SessionDialog({ open, onOpenChange, onSuccess, session }: Sessio
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="victim_id">Víctima</Label>
-            <Select value={formData.victim_id} onValueChange={(value) => setFormData({ ...formData, victim_id: value })}>
-              <SelectTrigger>
-                <SelectValue placeholder="Seleccione una víctima" />
-              </SelectTrigger>
-              <SelectContent>
-                {victims?.map((victim) => (
-                  <SelectItem key={victim.id} value={victim.id.toString()}>
-                    {victim.full_name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Label htmlFor="victim_name">Víctima</Label>
+            <Input
+              id="victim_name"
+              placeholder="Nombre de la víctima (opcional)"
+              value={formData.victim_name}
+              onChange={(e) => setFormData({ ...formData, victim_name: e.target.value })}
+            />
           </div>
           <div className="space-y-2">
             <Label htmlFor="judge_id">Juez/a Presente</Label>

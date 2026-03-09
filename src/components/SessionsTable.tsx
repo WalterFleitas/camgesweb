@@ -82,7 +82,7 @@ export function SessionsTable({ sessions, onUpdate, isAdmin = false }: SessionsT
                 </TableCell>
                 <TableCell>{session.case_name}</TableCell>
                 <TableCell>{session.defendant_name}</TableCell>
-                <TableCell>{session.victims?.full_name || "-"}</TableCell>
+                <TableCell>{session.victim_name || session.victims?.full_name || "-"}</TableCell>
                 <TableCell>{session.judges?.full_name || "-"}</TableCell>
                 <TableCell>{session.psychologists?.full_name || "-"}</TableCell>
                 {isAdmin && (

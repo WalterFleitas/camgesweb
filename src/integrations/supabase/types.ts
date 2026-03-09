@@ -121,6 +121,7 @@ export type Database = {
           session_date: string
           user_id: string
           victim_id: number | null
+          victim_name: string | null
         }
         Insert: {
           cantidad_copias?: number | null
@@ -135,6 +136,7 @@ export type Database = {
           session_date: string
           user_id: string
           victim_id?: number | null
+          victim_name?: string | null
         }
         Update: {
           cantidad_copias?: number | null
@@ -149,6 +151,7 @@ export type Database = {
           session_date?: string
           user_id?: string
           victim_id?: number | null
+          victim_name?: string | null
         }
         Relationships: [
           {
