@@ -28,15 +28,6 @@ export function SessionDialog({ open, onOpenChange, onSuccess, session }: Sessio
     psychologist_id: "",
   });
 
-  const { data: victims } = useQuery({
-    queryKey: ["victims"],
-    queryFn: async () => {
-      const { data, error } = await supabase.from("victims").select("*").order("full_name");
-      if (error) throw error;
-      return data;
-    },
-  });
-
   const { data: judges } = useQuery({
     queryKey: ["judges"],
     queryFn: async () => {
