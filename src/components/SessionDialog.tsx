@@ -179,19 +179,13 @@ export function SessionDialog({ open, onOpenChange, onSuccess, session }: Sessio
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="victim_id">Víctima</Label>
-            <Select value={formData.victim_id} onValueChange={(value) => setFormData({ ...formData, victim_id: value })}>
-              <SelectTrigger>
-                <SelectValue placeholder="Seleccione una víctima" />
-              </SelectTrigger>
-              <SelectContent>
-                {victims?.map((victim) => (
-                  <SelectItem key={victim.id} value={victim.id.toString()}>
-                    {victim.full_name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Label htmlFor="victim_name">Víctima</Label>
+            <Input
+              id="victim_name"
+              placeholder="Nombre de la víctima (opcional)"
+              value={formData.victim_name}
+              onChange={(e) => setFormData({ ...formData, victim_name: e.target.value })}
+            />
           </div>
           <div className="space-y-2">
             <Label htmlFor="judge_id">Juez/a Presente</Label>
