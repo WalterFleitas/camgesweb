@@ -62,7 +62,7 @@ export function SessionDialog({ open, onOpenChange, onSuccess, session }: Sessio
         session_date: new Date(session.session_date).toISOString().slice(0, 16),
         case_name: session.case_name,
         defendant_name: session.defendant_name,
-        victim_id: session.victim_id?.toString() || "",
+        victim_name: session.victim_name || session.victims?.full_name || "",
         judge_id: session.judge_id?.toString() || "",
         psychologist_id: session.psychologist_id?.toString() || "",
       });
@@ -72,7 +72,7 @@ export function SessionDialog({ open, onOpenChange, onSuccess, session }: Sessio
         session_date: "",
         case_name: "",
         defendant_name: "",
-        victim_id: "",
+        victim_name: "",
         judge_id: "",
         psychologist_id: "",
       });
