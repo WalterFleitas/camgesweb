@@ -10,7 +10,7 @@ interface StaffDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSuccess: () => void;
-  type: "judges" | "psychologists";
+  type: "judges" | "psychologists" | "courts";
   staff?: any;
 }
 
