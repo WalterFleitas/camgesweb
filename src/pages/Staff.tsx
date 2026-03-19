@@ -14,7 +14,7 @@ const Staff = () => {
   const [activeTab, setActiveTab] = useState("judges");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isImportOpen, setIsImportOpen] = useState(false);
-  const [staffType, setStaffType] = useState<"judges" | "psychologists">("judges");
+  const [staffType, setStaffType] = useState<"judges" | "psychologists" | "courts">("judges");
   const { isAdmin } = useUserRole();
 
   const { data: judges, refetch: refetchJudges } = useQuery({
