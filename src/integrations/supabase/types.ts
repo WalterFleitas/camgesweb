@@ -14,6 +14,27 @@ export type Database = {
   }
   public: {
     Tables: {
+      courts: {
+        Row: {
+          created_at: string
+          full_name: string
+          id: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          full_name: string
+          id?: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          full_name?: string
+          id?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
       documents: {
         Row: {
           created_at: string
@@ -111,6 +132,7 @@ export type Database = {
         Row: {
           cantidad_copias: number | null
           case_name: string
+          court_id: number | null
           created_at: string
           defendant_name: string
           disco_number: number
@@ -126,6 +148,7 @@ export type Database = {
         Insert: {
           cantidad_copias?: number | null
           case_name: string
+          court_id?: number | null
           created_at?: string
           defendant_name: string
           disco_number: number
@@ -141,6 +164,7 @@ export type Database = {
         Update: {
           cantidad_copias?: number | null
           case_name?: string
+          court_id?: number | null
           created_at?: string
           defendant_name?: string
           disco_number?: number
@@ -154,6 +178,13 @@ export type Database = {
           victim_name?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "sessions_court_id_fkey"
+            columns: ["court_id"]
+            isOneToOne: false
+            referencedRelation: "courts"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "sessions_judge_id_fkey"
             columns: ["judge_id"]
