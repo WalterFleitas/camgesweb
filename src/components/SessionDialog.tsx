@@ -48,6 +48,15 @@ export function SessionDialog({ open, onOpenChange, onSuccess, session }: Sessio
     },
   });
 
+  const { data: courts } = useQuery({
+    queryKey: ["courts"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("courts").select("*").order("full_name");
+      if (error) throw error;
+      return data;
+    },
+  });
+
   useEffect(() => {
     if (session) {
       setFormData({
