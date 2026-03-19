@@ -63,7 +63,7 @@ export function SessionDialog({ open, onOpenChange, onSuccess, session }: Sessio
         disco_number: session.disco_number.toString(),
         session_date: new Date(session.session_date).toISOString().slice(0, 16),
         case_name: session.case_name,
-        defendant_name: session.defendant_name,
+        court_id: session.court_id?.toString() || "",
         victim_name: session.victim_name || session.victims?.full_name || "",
         oficio_number: session.oficio_number || "",
         cantidad_copias: session.cantidad_copias?.toString() || "",
