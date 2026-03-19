@@ -38,18 +38,18 @@ const Sessions = () => {
           <h1 className="text-3xl font-bold tracking-tight">Registro de Sesiones de Cámara Gesell</h1>
           <p className="text-muted-foreground">Gestión de sesiones y causas judiciales</p>
         </div>
-        {isAdmin && (
-          <div className="flex gap-2">
+        <div className="flex gap-2">
+          {isAdmin && (
             <Button variant="outline" onClick={() => setIsImportOpen(true)}>
               <FileUp className="h-4 w-4 mr-2" />
               Importar Excel
             </Button>
-            <Button onClick={() => setIsDialogOpen(true)}>
-              <Plus className="h-4 w-4 mr-2" />
-              Nueva Sesión
-            </Button>
-          </div>
-        )}
+          )}
+          <Button onClick={() => setIsDialogOpen(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            Nueva Sesión
+          </Button>
+        </div>
       </div>
 
       <Card>

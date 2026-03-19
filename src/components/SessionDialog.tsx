@@ -24,6 +24,8 @@ export function SessionDialog({ open, onOpenChange, onSuccess, session }: Sessio
     case_name: "",
     defendant_name: "",
     victim_name: "",
+    oficio_number: "",
+    cantidad_copias: "",
     judge_id: "",
     psychologist_id: "",
   });
@@ -54,6 +56,8 @@ export function SessionDialog({ open, onOpenChange, onSuccess, session }: Sessio
         case_name: session.case_name,
         defendant_name: session.defendant_name,
         victim_name: session.victim_name || session.victims?.full_name || "",
+        oficio_number: session.oficio_number || "",
+        cantidad_copias: session.cantidad_copias?.toString() || "",
         judge_id: session.judge_id?.toString() || "",
         psychologist_id: session.psychologist_id?.toString() || "",
       });
@@ -64,6 +68,8 @@ export function SessionDialog({ open, onOpenChange, onSuccess, session }: Sessio
         case_name: "",
         defendant_name: "",
         victim_name: "",
+        oficio_number: "",
+        cantidad_copias: "",
         judge_id: "",
         psychologist_id: "",
       });
@@ -84,6 +90,8 @@ export function SessionDialog({ open, onOpenChange, onSuccess, session }: Sessio
         case_name: formData.case_name,
         defendant_name: formData.defendant_name,
         victim_name: formData.victim_name || null,
+        oficio_number: formData.oficio_number || null,
+        cantidad_copias: formData.cantidad_copias ? parseInt(formData.cantidad_copias) : null,
         judge_id: formData.judge_id ? parseInt(formData.judge_id) : null,
         psychologist_id: formData.psychologist_id ? parseInt(formData.psychologist_id) : null,
         user_id: user.id,
@@ -170,12 +178,22 @@ export function SessionDialog({ open, onOpenChange, onSuccess, session }: Sessio
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="victim_name">Víctima</Label>
+            <Label htmlFor="oficio_number">N° de Oficio</Label>
             <Input
-              id="victim_name"
-              placeholder="Nombre de la víctima (opcional)"
-              value={formData.victim_name}
-              onChange={(e) => setFormData({ ...formData, victim_name: e.target.value })}
+              id="oficio_number"
+              placeholder="Ej: 190/2024"
+              value={formData.oficio_number}
+              onChange={(e) => setFormData({ ...formData, oficio_number: e.target.value })}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="cantidad_copias">Cantidad de Copias</Label>
+            <Input
+              id="cantidad_copias"
+              type="number"
+              placeholder="1"
+              value={formData.cantidad_copias}
+              onChange={(e) => setFormData({ ...formData, cantidad_copias: e.target.value })}
             />
           </div>
           <div className="space-y-2">

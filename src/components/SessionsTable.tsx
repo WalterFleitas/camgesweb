@@ -70,7 +70,7 @@ export function SessionsTable({ sessions, onUpdate, isAdmin = false }: SessionsT
               <TableHead>Víctima</TableHead>
               <TableHead>Juez/a</TableHead>
               <TableHead>Psicólogo/a</TableHead>
-              {isAdmin && <TableHead className="text-right">Acciones</TableHead>}
+              <TableHead className="text-right">Acciones</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -85,26 +85,24 @@ export function SessionsTable({ sessions, onUpdate, isAdmin = false }: SessionsT
                 <TableCell>{session.victim_name || session.victims?.full_name || "-"}</TableCell>
                 <TableCell>{session.judges?.full_name || "-"}</TableCell>
                 <TableCell>{session.psychologists?.full_name || "-"}</TableCell>
-                {isAdmin && (
-                  <TableCell className="text-right">
-                    <div className="flex justify-end gap-2">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => setEditingSession(session)}
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => setDeletingSessionId(session.id)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </TableCell>
-                )}
+                <TableCell className="text-right">
+                  <div className="flex justify-end gap-2">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setEditingSession(session)}
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setDeletingSessionId(session.id)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
