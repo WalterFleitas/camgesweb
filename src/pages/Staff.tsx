@@ -88,9 +88,9 @@ const Staff = () => {
                     <FileUp className="h-4 w-4 mr-2" />
                     Importar Excel
                   </Button>
-                  <Button onClick={() => handleNewStaff(activeTab === "judges" ? "judges" : "psychologists")}>
+                  <Button onClick={() => handleNewStaff(activeTab as "judges" | "psychologists" | "courts")}>
                     <Plus className="h-4 w-4 mr-2" />
-                    {activeTab === "judges" ? "Nuevo Juez/a" : "Nuevo Psicólogo/a"}
+                    {activeTab === "judges" ? "Nuevo Juez/a" : activeTab === "psychologists" ? "Nuevo Psicólogo/a" : "Nuevo Juzgado"}
                   </Button>
                 </div>
               )}
