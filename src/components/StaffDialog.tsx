@@ -10,7 +10,7 @@ interface StaffDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSuccess: () => void;
-  type: "judges" | "psychologists";
+  type: "judges" | "psychologists" | "courts";
   staff?: any;
 }
 
@@ -50,10 +50,10 @@ export function StaffDialog({ open, onOpenChange, onSuccess, type, staff }: Staf
         if (error) throw error;
       }
 
-      const label = type === "judges" ? "Juez/a" : "Psicólogo/a";
+      const label = type === "judges" ? "Juez/a" : type === "psychologists" ? "Psicólogo/a" : "Juzgado";
       toast({
         title: staff ? `${label} actualizado` : `${label} creado`,
-        description: staff ? `El/la ${label.toLowerCase()} se actualizó correctamente` : `El/la ${label.toLowerCase()} se creó correctamente`,
+        description: staff ? `${label} se actualizó correctamente` : `${label} se creó correctamente`,
       });
 
       onSuccess();
@@ -69,13 +69,15 @@ export function StaffDialog({ open, onOpenChange, onSuccess, type, staff }: Staf
     }
   };
 
-  const title = staff
-    ? type === "judges" ? "Editar Juez/a" : "Editar Psicólogo/a"
-    : type === "judges" ? "Nuevo Juez/a" : "Nuevo Psicólogo/a";
-
-  const description = type === "judges"
-    ? "Complete la información del juez o jueza"
-    : "Complete la información del psicólogo o psicóloga";
+  const labelMap = { judges: "Juez/a", psychologists: "Psicólogo/a", courts: "Juzgado" };
+  const descMap = {
+    judges: "Complete la información del juez o jueza",
+    psychologists: "Complete la información del psicólogo o psicóloga",
+    courts: "Complete la información del juzgado o fiscalía",
+  };
+  const label = labelMap[type];
+  const title = staff ? `Editar ${label}` : `Nuevo ${label}`;
+  const description = descMap[type];
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -86,12 +88,13 @@ export function StaffDialog({ open, onOpenChange, onSuccess, type, staff }: Staf
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="id">ID de {type === "judges" ? "Juez/a" : "Psicólogo/a"}</Label>
+            <Label htmlFor="full_name">Nombre Completo</Label>
             <Input
-              id="id"
-              value={staff?.id || "Auto-generado"}
-              disabled
-              className="bg-muted"
+              id="full_name"
+              placeholder={type === "courts" ? "Nombre del juzgado o fiscalía" : `Nombre completo del ${type === "judges" ? "juez o jueza" : "psicólogo o psicóloga"}`}
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+              required
             />
           </div>
           <div className="space-y-2">

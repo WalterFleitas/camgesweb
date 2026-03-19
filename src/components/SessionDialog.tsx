@@ -22,7 +22,7 @@ export function SessionDialog({ open, onOpenChange, onSuccess, session }: Sessio
     disco_number: "",
     session_date: "",
     case_name: "",
-    defendant_name: "",
+    court_id: "",
     victim_name: "",
     oficio_number: "",
     cantidad_copias: "",
@@ -48,13 +48,22 @@ export function SessionDialog({ open, onOpenChange, onSuccess, session }: Sessio
     },
   });
 
+  const { data: courts } = useQuery({
+    queryKey: ["courts"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("courts").select("*").order("full_name");
+      if (error) throw error;
+      return data;
+    },
+  });
+
   useEffect(() => {
     if (session) {
       setFormData({
         disco_number: session.disco_number.toString(),
         session_date: new Date(session.session_date).toISOString().slice(0, 16),
         case_name: session.case_name,
-        defendant_name: session.defendant_name,
+        court_id: session.court_id?.toString() || "",
         victim_name: session.victim_name || session.victims?.full_name || "",
         oficio_number: session.oficio_number || "",
         cantidad_copias: session.cantidad_copias?.toString() || "",
@@ -66,7 +75,7 @@ export function SessionDialog({ open, onOpenChange, onSuccess, session }: Sessio
         disco_number: "",
         session_date: "",
         case_name: "",
-        defendant_name: "",
+        court_id: "",
         victim_name: "",
         oficio_number: "",
         cantidad_copias: "",
@@ -88,7 +97,8 @@ export function SessionDialog({ open, onOpenChange, onSuccess, session }: Sessio
         disco_number: parseInt(formData.disco_number),
         session_date: formData.session_date,
         case_name: formData.case_name,
-        defendant_name: formData.defendant_name,
+        defendant_name: "N/A",
+        court_id: formData.court_id ? parseInt(formData.court_id) : null,
         victim_name: formData.victim_name || null,
         oficio_number: formData.oficio_number || null,
         cantidad_copias: formData.cantidad_copias ? parseInt(formData.cantidad_copias) : null,
@@ -168,14 +178,19 @@ export function SessionDialog({ open, onOpenChange, onSuccess, session }: Sessio
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="defendant_name">Juzgado a Cargo</Label>
-            <Input
-              id="defendant_name"
-              placeholder="Ej: Juzgado de Instrucción N° 5"
-              value={formData.defendant_name}
-              onChange={(e) => setFormData({ ...formData, defendant_name: e.target.value })}
-              required
-            />
+            <Label htmlFor="court_id">Juzgado a Cargo</Label>
+            <Select value={formData.court_id} onValueChange={(value) => setFormData({ ...formData, court_id: value })}>
+              <SelectTrigger>
+                <SelectValue placeholder="Seleccione un juzgado" />
+              </SelectTrigger>
+              <SelectContent>
+                {courts?.map((court) => (
+                  <SelectItem key={court.id} value={court.id.toString()}>
+                    {court.full_name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <div className="space-y-2">
             <Label htmlFor="oficio_number">N° de Oficio</Label>

@@ -26,7 +26,8 @@ const Search = () => {
           *,
           victims(id, full_name),
           judges(id, full_name),
-          psychologists(id, full_name)
+          psychologists(id, full_name),
+          courts(id, full_name)
         `)
         .order("created_at", { ascending: false });
 

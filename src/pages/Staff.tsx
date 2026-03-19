@@ -14,7 +14,7 @@ const Staff = () => {
   const [activeTab, setActiveTab] = useState("judges");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isImportOpen, setIsImportOpen] = useState(false);
-  const [staffType, setStaffType] = useState<"judges" | "psychologists">("judges");
+  const [staffType, setStaffType] = useState<"judges" | "psychologists" | "courts">("judges");
   const { isAdmin } = useUserRole();
 
   const { data: judges, refetch: refetchJudges } = useQuery({
@@ -41,7 +41,19 @@ const Staff = () => {
     },
   });
 
-  const handleNewStaff = (type: "judges" | "psychologists") => {
+  const { data: courts, refetch: refetchCourts } = useQuery({
+    queryKey: ["courts"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("courts")
+        .select("*")
+        .order("full_name");
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const handleNewStaff = (type: "judges" | "psychologists" | "courts") => {
     setStaffType(type);
     setIsDialogOpen(true);
   };
@@ -49,6 +61,7 @@ const Staff = () => {
   const refetch = () => {
     refetchJudges();
     refetchPsychologists();
+    refetchCourts();
   };
 
   return (
@@ -56,7 +69,7 @@ const Staff = () => {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Gestión de Personal</h1>
-          <p className="text-muted-foreground">Mantenimiento de jueces y psicólogos</p>
+          <p className="text-muted-foreground">Mantenimiento de jueces, psicólogos y juzgados</p>
         </div>
       </div>
 
@@ -67,6 +80,7 @@ const Staff = () => {
               <TabsList>
                 <TabsTrigger value="judges">Jueces</TabsTrigger>
                 <TabsTrigger value="psychologists">Psicólogos</TabsTrigger>
+                <TabsTrigger value="courts">Juzgados</TabsTrigger>
               </TabsList>
               {isAdmin && (
                 <div className="flex gap-2">
@@ -74,9 +88,9 @@ const Staff = () => {
                     <FileUp className="h-4 w-4 mr-2" />
                     Importar Excel
                   </Button>
-                  <Button onClick={() => handleNewStaff(activeTab === "judges" ? "judges" : "psychologists")}>
+                  <Button onClick={() => handleNewStaff(activeTab as "judges" | "psychologists" | "courts")}>
                     <Plus className="h-4 w-4 mr-2" />
-                    {activeTab === "judges" ? "Nuevo Juez/a" : "Nuevo Psicólogo/a"}
+                    {activeTab === "judges" ? "Nuevo Juez/a" : activeTab === "psychologists" ? "Nuevo Psicólogo/a" : "Nuevo Juzgado"}
                   </Button>
                 </div>
               )}
@@ -102,6 +116,16 @@ const Staff = () => {
               ) : (
                 <div className="text-center py-12 text-muted-foreground">
                   No hay psicólogos registrados.
+                </div>
+              )}
+            </TabsContent>
+            <TabsContent value="courts">
+              <CardTitle className="mb-4">Juzgados Registrados</CardTitle>
+              {courts && courts.length > 0 ? (
+                <StaffTable staff={courts} type="courts" onUpdate={refetch} />
+              ) : (
+                <div className="text-center py-12 text-muted-foreground">
+                  No hay juzgados registrados.
                 </div>
               )}
             </TabsContent>
