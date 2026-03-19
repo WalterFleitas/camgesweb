@@ -53,7 +53,7 @@ export function StaffDialog({ open, onOpenChange, onSuccess, type, staff }: Staf
       const label = type === "judges" ? "Juez/a" : "Psicólogo/a";
       toast({
         title: staff ? `${label} actualizado` : `${label} creado`,
-        description: staff ? `El/la ${label.toLowerCase()} se actualizó correctamente` : `El/la ${label.toLowerCase()} se creó correctamente`,
+        description: staff ? `${label} se actualizó correctamente` : `${label} se creó correctamente`,
       });
 
       onSuccess();
