@@ -119,6 +119,16 @@ const Staff = () => {
                 </div>
               )}
             </TabsContent>
+            <TabsContent value="courts">
+              <CardTitle className="mb-4">Juzgados Registrados</CardTitle>
+              {courts && courts.length > 0 ? (
+                <StaffTable staff={courts} type="courts" onUpdate={refetch} />
+              ) : (
+                <div className="text-center py-12 text-muted-foreground">
+                  No hay juzgados registrados.
+                </div>
+              )}
+            </TabsContent>
           </Tabs>
         </CardContent>
       </Card>
