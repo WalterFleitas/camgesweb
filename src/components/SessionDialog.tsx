@@ -75,7 +75,7 @@ export function SessionDialog({ open, onOpenChange, onSuccess, session }: Sessio
         disco_number: "",
         session_date: "",
         case_name: "",
-        defendant_name: "",
+        court_id: "",
         victim_name: "",
         oficio_number: "",
         cantidad_copias: "",
