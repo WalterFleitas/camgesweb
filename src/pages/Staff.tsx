@@ -69,7 +69,7 @@ const Staff = () => {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Gestión de Personal</h1>
-          <p className="text-muted-foreground">Mantenimiento de jueces y psicólogos</p>
+          <p className="text-muted-foreground">Mantenimiento de jueces, psicólogos y juzgados</p>
         </div>
       </div>
 
