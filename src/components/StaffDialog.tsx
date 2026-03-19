@@ -69,13 +69,15 @@ export function StaffDialog({ open, onOpenChange, onSuccess, type, staff }: Staf
     }
   };
 
-  const title = staff
-    ? type === "judges" ? "Editar Juez/a" : "Editar Psicólogo/a"
-    : type === "judges" ? "Nuevo Juez/a" : "Nuevo Psicólogo/a";
-
-  const description = type === "judges"
-    ? "Complete la información del juez o jueza"
-    : "Complete la información del psicólogo o psicóloga";
+  const labelMap = { judges: "Juez/a", psychologists: "Psicólogo/a", courts: "Juzgado" };
+  const descMap = {
+    judges: "Complete la información del juez o jueza",
+    psychologists: "Complete la información del psicólogo o psicóloga",
+    courts: "Complete la información del juzgado o fiscalía",
+  };
+  const label = labelMap[type];
+  const title = staff ? `Editar ${label}` : `Nuevo ${label}`;
+  const description = descMap[type];
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
