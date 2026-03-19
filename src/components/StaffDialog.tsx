@@ -88,12 +88,13 @@ export function StaffDialog({ open, onOpenChange, onSuccess, type, staff }: Staf
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="id">ID de {type === "judges" ? "Juez/a" : "Psicólogo/a"}</Label>
+            <Label htmlFor="full_name">Nombre Completo</Label>
             <Input
-              id="id"
-              value={staff?.id || "Auto-generado"}
-              disabled
-              className="bg-muted"
+              id="full_name"
+              placeholder={type === "courts" ? "Nombre del juzgado o fiscalía" : `Nombre completo del ${type === "judges" ? "juez o jueza" : "psicólogo o psicóloga"}`}
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+              required
             />
           </div>
           <div className="space-y-2">
