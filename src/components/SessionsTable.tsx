@@ -81,7 +81,7 @@ export function SessionsTable({ sessions, onUpdate, isAdmin = false }: SessionsT
                   {format(new Date(session.session_date), "dd/MM/yyyy HH:mm", { locale: es })}
                 </TableCell>
                 <TableCell>{session.case_name}</TableCell>
-                <TableCell>{session.defendant_name}</TableCell>
+                <TableCell>{session.courts?.full_name || session.defendant_name || "-"}</TableCell>
                 <TableCell>{session.victim_name || session.victims?.full_name || "-"}</TableCell>
                 <TableCell>{session.judges?.full_name || "-"}</TableCell>
                 <TableCell>{session.psychologists?.full_name || "-"}</TableCell>
