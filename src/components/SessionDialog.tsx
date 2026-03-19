@@ -178,6 +178,24 @@ export function SessionDialog({ open, onOpenChange, onSuccess, session }: Sessio
             />
           </div>
           <div className="space-y-2">
+            <Label htmlFor="oficio_number">N° de Oficio</Label>
+            <Input
+              id="oficio_number"
+              placeholder="Ej: 190/2024"
+              value={formData.oficio_number}
+              onChange={(e) => setFormData({ ...formData, oficio_number: e.target.value })}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="cantidad_copias">Cantidad de Copias</Label>
+            <Input
+              id="cantidad_copias"
+              type="number"
+              placeholder="1"
+              value={formData.cantidad_copias}
+              onChange={(e) => setFormData({ ...formData, cantidad_copias: e.target.value })}
+            />
+          </div>
             <Label htmlFor="victim_name">Víctima</Label>
             <Input
               id="victim_name"
