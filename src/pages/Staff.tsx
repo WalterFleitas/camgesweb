@@ -53,7 +53,7 @@ const Staff = () => {
     },
   });
 
-  const handleNewStaff = (type: "judges" | "psychologists") => {
+  const handleNewStaff = (type: "judges" | "psychologists" | "courts") => {
     setStaffType(type);
     setIsDialogOpen(true);
   };
