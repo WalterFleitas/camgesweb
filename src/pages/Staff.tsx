@@ -61,6 +61,7 @@ const Staff = () => {
   const refetch = () => {
     refetchJudges();
     refetchPsychologists();
+    refetchCourts();
   };
 
   return (

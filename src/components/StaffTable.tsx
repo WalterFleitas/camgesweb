@@ -38,7 +38,7 @@ export function StaffTable({ staff, type, onUpdate }: StaffTableProps) {
 
       if (error) throw error;
 
-      const label = type === "judges" ? "Juez/a" : "Psicólogo/a";
+      const label = type === "judges" ? "Juez/a" : type === "psychologists" ? "Psicólogo/a" : "Juzgado";
       toast({
         title: `${label} eliminado`,
         description: `El/la ${label.toLowerCase()} se eliminó correctamente`,
