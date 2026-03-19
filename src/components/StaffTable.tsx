@@ -18,7 +18,7 @@ import {
 
 interface StaffTableProps {
   staff: any[];
-  type: "judges" | "psychologists";
+  type: "judges" | "psychologists" | "courts";
   onUpdate: () => void;
 }
 
