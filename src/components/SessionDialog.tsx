@@ -56,6 +56,8 @@ export function SessionDialog({ open, onOpenChange, onSuccess, session }: Sessio
         case_name: session.case_name,
         defendant_name: session.defendant_name,
         victim_name: session.victim_name || session.victims?.full_name || "",
+        oficio_number: session.oficio_number || "",
+        cantidad_copias: session.cantidad_copias?.toString() || "",
         judge_id: session.judge_id?.toString() || "",
         psychologist_id: session.psychologist_id?.toString() || "",
       });
