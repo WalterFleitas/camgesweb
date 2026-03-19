@@ -80,6 +80,7 @@ const Staff = () => {
               <TabsList>
                 <TabsTrigger value="judges">Jueces</TabsTrigger>
                 <TabsTrigger value="psychologists">Psicólogos</TabsTrigger>
+                <TabsTrigger value="courts">Juzgados</TabsTrigger>
               </TabsList>
               {isAdmin && (
                 <div className="flex gap-2">
