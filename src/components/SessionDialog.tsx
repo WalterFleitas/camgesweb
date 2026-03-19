@@ -68,6 +68,8 @@ export function SessionDialog({ open, onOpenChange, onSuccess, session }: Sessio
         case_name: "",
         defendant_name: "",
         victim_name: "",
+        oficio_number: "",
+        cantidad_copias: "",
         judge_id: "",
         psychologist_id: "",
       });
