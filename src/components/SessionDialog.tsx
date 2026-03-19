@@ -196,14 +196,6 @@ export function SessionDialog({ open, onOpenChange, onSuccess, session }: Sessio
               onChange={(e) => setFormData({ ...formData, cantidad_copias: e.target.value })}
             />
           </div>
-            <Label htmlFor="victim_name">Víctima</Label>
-            <Input
-              id="victim_name"
-              placeholder="Nombre de la víctima (opcional)"
-              value={formData.victim_name}
-              onChange={(e) => setFormData({ ...formData, victim_name: e.target.value })}
-            />
-          </div>
           <div className="space-y-2">
             <Label htmlFor="judge_id">Juez/a Presente</Label>
             <Select value={formData.judge_id} onValueChange={(value) => setFormData({ ...formData, judge_id: value })}>
