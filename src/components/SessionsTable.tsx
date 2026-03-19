@@ -70,7 +70,7 @@ export function SessionsTable({ sessions, onUpdate, isAdmin = false }: SessionsT
               <TableHead>Víctima</TableHead>
               <TableHead>Juez/a</TableHead>
               <TableHead>Psicólogo/a</TableHead>
-              {isAdmin && <TableHead className="text-right">Acciones</TableHead>}
+              <TableHead className="text-right">Acciones</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
