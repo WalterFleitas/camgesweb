@@ -90,6 +90,8 @@ export function SessionDialog({ open, onOpenChange, onSuccess, session }: Sessio
         case_name: formData.case_name,
         defendant_name: formData.defendant_name,
         victim_name: formData.victim_name || null,
+        oficio_number: formData.oficio_number || null,
+        cantidad_copias: formData.cantidad_copias ? parseInt(formData.cantidad_copias) : null,
         judge_id: formData.judge_id ? parseInt(formData.judge_id) : null,
         psychologist_id: formData.psychologist_id ? parseInt(formData.psychologist_id) : null,
         user_id: user.id,
