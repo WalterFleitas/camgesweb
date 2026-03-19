@@ -41,6 +41,18 @@ const Staff = () => {
     },
   });
 
+  const { data: courts, refetch: refetchCourts } = useQuery({
+    queryKey: ["courts"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("courts")
+        .select("*")
+        .order("full_name");
+      if (error) throw error;
+      return data;
+    },
+  });
+
   const handleNewStaff = (type: "judges" | "psychologists") => {
     setStaffType(type);
     setIsDialogOpen(true);
