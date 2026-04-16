@@ -69,8 +69,7 @@ export function SessionsTable({ sessions, onUpdate, isAdmin = false }: SessionsT
               <TableHead>Juzgado</TableHead>
               <TableHead>Víctima</TableHead>
               <TableHead>N° Oficio</TableHead>
-              <TableHead>Copias</TableHead>
-              <TableHead>Entregada</TableHead>
+              <TableHead>Copias Entregadas</TableHead>
               <TableHead>Juez/a</TableHead>
               <TableHead>Psicólogo/a</TableHead>
               <TableHead className="text-right">Acciones</TableHead>
@@ -87,7 +86,6 @@ export function SessionsTable({ sessions, onUpdate, isAdmin = false }: SessionsT
                 <TableCell>{session.courts?.full_name || session.defendant_name || "-"}</TableCell>
                 <TableCell>{session.victim_name || session.victims?.full_name || "-"}</TableCell>
                 <TableCell>{session.oficio_number || "-"}</TableCell>
-                <TableCell>{session.cantidad_copias || "-"}</TableCell>
                 <TableCell>{session.copia_entregada ? "Sí" : "No"}</TableCell>
                 <TableCell>{session.judges?.full_name || "-"}</TableCell>
                 <TableCell>{session.psychologists?.full_name || "-"}</TableCell>
