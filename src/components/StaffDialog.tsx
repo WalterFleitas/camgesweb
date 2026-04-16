@@ -97,16 +97,6 @@ export function StaffDialog({ open, onOpenChange, onSuccess, type, staff }: Staf
               required
             />
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="full_name">Nombre Completo</Label>
-            <Input
-              id="full_name"
-              placeholder={`Nombre completo del ${type === "judges" ? "juez o jueza" : "psicólogo o psicóloga"}`}
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
-              required
-            />
-          </div>
           <div className="flex gap-2 justify-end">
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancelar
