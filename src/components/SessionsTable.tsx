@@ -69,6 +69,8 @@ export function SessionsTable({ sessions, onUpdate, isAdmin = false }: SessionsT
               <TableHead>Juzgado</TableHead>
               <TableHead>Víctima</TableHead>
               <TableHead>N° Oficio</TableHead>
+              <TableHead>Copias</TableHead>
+              <TableHead>Entregada</TableHead>
               <TableHead>Juez/a</TableHead>
               <TableHead>Psicólogo/a</TableHead>
               <TableHead className="text-right">Acciones</TableHead>

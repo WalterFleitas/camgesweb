@@ -28,6 +28,7 @@ export function SessionDialog({ open, onOpenChange, onSuccess, session }: Sessio
     cantidad_copias: "",
     judge_id: "",
     psychologist_id: "",
+    copia_entregada: false,
   });
 
   const { data: judges } = useQuery({
