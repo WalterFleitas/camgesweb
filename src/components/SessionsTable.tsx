@@ -87,6 +87,8 @@ export function SessionsTable({ sessions, onUpdate, isAdmin = false }: SessionsT
                 <TableCell>{session.courts?.full_name || session.defendant_name || "-"}</TableCell>
                 <TableCell>{session.victim_name || session.victims?.full_name || "-"}</TableCell>
                 <TableCell>{session.oficio_number || "-"}</TableCell>
+                <TableCell>{session.cantidad_copias || "-"}</TableCell>
+                <TableCell>{session.copia_entregada ? "Sí" : "No"}</TableCell>
                 <TableCell>{session.judges?.full_name || "-"}</TableCell>
                 <TableCell>{session.psychologists?.full_name || "-"}</TableCell>
                 <TableCell className="text-right">

@@ -255,6 +255,14 @@ export function SessionDialog({ open, onOpenChange, onSuccess, session }: Sessio
               </SelectContent>
             </Select>
           </div>
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="copia_entregada"
+              checked={formData.copia_entregada}
+              onCheckedChange={(checked) => setFormData({ ...formData, copia_entregada: !!checked })}
+            />
+            <Label htmlFor="copia_entregada">Copia entregada a psicóloga</Label>
+          </div>
           <div className="flex gap-2 justify-end">
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancelar
