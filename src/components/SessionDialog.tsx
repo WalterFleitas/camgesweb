@@ -70,6 +70,7 @@ export function SessionDialog({ open, onOpenChange, onSuccess, session }: Sessio
         cantidad_copias: session.cantidad_copias?.toString() || "",
         judge_id: session.judge_id?.toString() || "",
         psychologist_id: session.psychologist_id?.toString() || "",
+        copia_entregada: session.copia_entregada ?? false,
       });
     } else {
       setFormData({
@@ -82,6 +83,7 @@ export function SessionDialog({ open, onOpenChange, onSuccess, session }: Sessio
         cantidad_copias: "",
         judge_id: "",
         psychologist_id: "",
+        copia_entregada: false,
       });
     }
   }, [session, open]);
