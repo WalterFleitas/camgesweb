@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
@@ -107,6 +108,7 @@ export function SessionDialog({ open, onOpenChange, onSuccess, session }: Sessio
         cantidad_copias: formData.cantidad_copias ? parseInt(formData.cantidad_copias) : null,
         judge_id: formData.judge_id ? parseInt(formData.judge_id) : null,
         psychologist_id: formData.psychologist_id ? parseInt(formData.psychologist_id) : null,
+        copia_entregada: formData.copia_entregada,
         user_id: user.id,
       };
 
