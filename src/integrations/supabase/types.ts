@@ -132,6 +132,7 @@ export type Database = {
         Row: {
           cantidad_copias: number | null
           case_name: string
+          copia_entregada: boolean
           court_id: number | null
           created_at: string
           defendant_name: string
@@ -148,6 +149,7 @@ export type Database = {
         Insert: {
           cantidad_copias?: number | null
           case_name: string
+          copia_entregada?: boolean
           court_id?: number | null
           created_at?: string
           defendant_name: string
@@ -164,6 +166,7 @@ export type Database = {
         Update: {
           cantidad_copias?: number | null
           case_name?: string
+          copia_entregada?: boolean
           court_id?: number | null
           created_at?: string
           defendant_name?: string

@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
@@ -28,6 +29,7 @@ export function SessionDialog({ open, onOpenChange, onSuccess, session }: Sessio
     cantidad_copias: "",
     judge_id: "",
     psychologist_id: "",
+    copia_entregada: false,
   });
 
   const { data: judges } = useQuery({
@@ -69,6 +71,7 @@ export function SessionDialog({ open, onOpenChange, onSuccess, session }: Sessio
         cantidad_copias: session.cantidad_copias?.toString() || "",
         judge_id: session.judge_id?.toString() || "",
         psychologist_id: session.psychologist_id?.toString() || "",
+        copia_entregada: session.copia_entregada ?? false,
       });
     } else {
       setFormData({
@@ -81,6 +84,7 @@ export function SessionDialog({ open, onOpenChange, onSuccess, session }: Sessio
         cantidad_copias: "",
         judge_id: "",
         psychologist_id: "",
+        copia_entregada: false,
       });
     }
   }, [session, open]);
@@ -104,6 +108,7 @@ export function SessionDialog({ open, onOpenChange, onSuccess, session }: Sessio
         cantidad_copias: formData.cantidad_copias ? parseInt(formData.cantidad_copias) : null,
         judge_id: formData.judge_id ? parseInt(formData.judge_id) : null,
         psychologist_id: formData.psychologist_id ? parseInt(formData.psychologist_id) : null,
+        copia_entregada: formData.copia_entregada,
         user_id: user.id,
       };
 
@@ -249,6 +254,14 @@ export function SessionDialog({ open, onOpenChange, onSuccess, session }: Sessio
                 ))}
               </SelectContent>
             </Select>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="copia_entregada"
+              checked={formData.copia_entregada}
+              onCheckedChange={(checked) => setFormData({ ...formData, copia_entregada: !!checked })}
+            />
+            <Label htmlFor="copia_entregada">Copia entregada a psicóloga</Label>
           </div>
           <div className="flex gap-2 justify-end">
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
