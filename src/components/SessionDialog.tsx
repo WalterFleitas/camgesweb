@@ -193,6 +193,15 @@ export function SessionDialog({ open, onOpenChange, onSuccess, session }: Sessio
             </Select>
           </div>
           <div className="space-y-2">
+            <Label htmlFor="victim_name">Víctima</Label>
+            <Input
+              id="victim_name"
+              placeholder="Nombre de la víctima"
+              value={formData.victim_name}
+              onChange={(e) => setFormData({ ...formData, victim_name: e.target.value })}
+            />
+          </div>
+          <div className="space-y-2">
             <Label htmlFor="oficio_number">N° de Oficio</Label>
             <Input
               id="oficio_number"
