@@ -1,1 +1,0 @@
-ALTER TABLE public.sessions ADD COLUMN copia_entregada boolean NOT NULL DEFAULT false;

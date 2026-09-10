@@ -1,1 +1,0 @@
-ALTER TABLE public.sessions ADD COLUMN victim_name text;
