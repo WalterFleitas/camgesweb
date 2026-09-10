@@ -106,7 +106,7 @@ tr.data-row:hover td{background:#F8FAFC}
 .badge-green{background:var(--success-light);color:#15803D;border:1px solid #BBF7D0}
 .badge-gray{background:#F1F5F9;color:#64748B;border:1px solid var(--border)}
 
-.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,240px));gap:14px;margin-bottom:20px}
 .stat-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px 18px;box-shadow:var(--shadow)}
 .stat-label{font-size:11px;color:var(--text2);margin-bottom:6px;font-weight:500}
 .stat-value{font-size:30px;font-weight:700;color:var(--text);line-height:1}
@@ -856,14 +856,8 @@ function renderReports() {
   const y = reportDate.getFullYear(), m = reportDate.getMonth();
   document.getElementById('month-display').textContent = MONTHS_ES[m] + ' de ' + y;
   const sessions = getReportSessions();
-  const uniqueVictims = new Set(sessions.map(s=>s.victim_name||s.victim_id).filter(Boolean)).size;
-  const uniqueJudges = new Set(sessions.map(s=>s.judge_id).filter(Boolean)).size;
-  const uniquePsychs = new Set(sessions.map(s=>s.psychologist_id).filter(Boolean)).size;
   document.getElementById('report-stats').innerHTML = [
     {label:'Total de Sesiones',val:sessions.length,sub:'en el mes'},
-    {label:'Víctimas Atendidas',val:uniqueVictims,sub:'víctimas'},
-    {label:'Jueces Participantes',val:uniqueJudges,sub:'jueces'},
-    {label:'Psicólogos Participantes',val:uniquePsychs,sub:'psicólogos'},
   ].map(s=>`<div class="stat-card"><div class="stat-label">${s.label}</div><div class="stat-value">${s.val}</div><div class="stat-sub">${s.sub}</div></div>`).join('');
 
   const firstDay = new Date(y,m,1), lastDay = new Date(y,m+1,0);
@@ -904,14 +898,8 @@ function generatePDF() {
 
   let y2 = 36;
   doc.setFontSize(13); doc.setFont('helvetica','bold'); doc.text('Resumen General', 14, y2);
-  const uniqueVictims = new Set(sessions.map(s=>s.victim_name||s.victim_id).filter(Boolean)).size;
-  const uniqueJudges = new Set(sessions.map(s=>s.judge_id).filter(Boolean)).size;
-  const uniquePsychs = new Set(sessions.map(s=>s.psychologist_id).filter(Boolean)).size;
   doc.autoTable({ startY:y2+4, head:[['Indicador','Cantidad']], body:[
     ['Total de sesiones en el mes', String(sessions.length)],
-    ['Víctimas atendidas', String(uniqueVictims)],
-    ['Jueces participantes', String(uniqueJudges)],
-    ['Psicólogos participantes', String(uniquePsychs)],
   ], theme:'grid', headStyles:{fillColor:[59,130,246]}, styles:{fontSize:10} });
 
   y2 = doc.lastAutoTable.finalY + 10;
