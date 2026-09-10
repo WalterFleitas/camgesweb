@@ -256,7 +256,6 @@ tr.data-row:hover td{background:#F8FAFC}
       <button class="nav-item active" data-module="sessions" onclick="navigate('sessions',this)">📹 Sesiones de Cámara Gesell</button>
       <button class="nav-item" data-module="search" onclick="navigate('search',this)">🔍 Búsqueda de Sesiones</button>
       <button class="nav-item" data-module="reports" onclick="navigate('reports',this)">📄 Informes y Reportes</button>
-      <button class="nav-item" data-module="victims" onclick="navigate('victims',this)">👥 Gestión de Víctimas</button>
       <button class="nav-item" data-module="staff" onclick="navigate('staff',this)">💼 Gestión de Personal</button>
       <button class="nav-item" data-module="documents" onclick="navigate('documents',this)">📋 Oficios y Documentos</button>
       <div class="sidebar-group-label" id="admin-label" style="display:none">Administración</div>
@@ -346,25 +345,6 @@ tr.data-row:hover td{background:#F8FAFC}
         </div>
       </div>
 
-      <!-- VICTIMS -->
-      <div class="page" id="page-victims">
-        <div class="page-head">
-          <div class="page-head-info"><h1>Gestión de Víctimas</h1><p>Mantenimiento de registros de víctimas</p></div>
-          <div class="page-head-actions" id="victims-actions">
-            <button class="btn btn-outline btn-sm" onclick="openImport('victims')">📤 Importar Excel</button>
-            <button class="btn btn-primary btn-sm" onclick="openVictimModal()">+ Nueva Víctima</button>
-          </div>
-        </div>
-        <div class="card">
-          <div class="card-header"><div class="card-title">Víctimas Registradas</div></div>
-          <div class="card-content" style="padding:0">
-            <div class="table-wrap" style="border:none;border-radius:0">
-              <table><thead><tr><th>Nombre Completo</th><th style="text-align:right">Acciones</th></tr></thead><tbody id="victims-tbody"></tbody></table>
-            </div>
-          </div>
-        </div>
-      </div>
-
       <!-- STAFF -->
       <div class="page" id="page-staff">
         <div class="page-head"><div class="page-head-info"><h1>Gestión de Personal</h1><p>Mantenimiento de jueces, psicólogos y juzgados</p></div></div>
@@ -418,7 +398,7 @@ tr.data-row:hover td{background:#F8FAFC}
           <div class="card-header"><div class="card-title">Usuarios del Sistema</div></div>
           <div class="card-content" style="padding:0">
             <div class="table-wrap" style="border:none;border-radius:0">
-              <table><thead><tr><th>Nombre</th><th>Rol</th><th>Sesiones</th><th>Búsqueda</th><th>Informes</th><th>Víctimas</th><th>Personal</th><th>Documentos</th></tr></thead><tbody id="users-tbody"></tbody></table>
+              <table><thead><tr><th>Nombre</th><th>Rol</th><th>Sesiones</th><th>Búsqueda</th><th>Informes</th><th>Personal</th><th>Documentos</th></tr></thead><tbody id="users-tbody"></tbody></table>
             </div>
           </div>
         </div>
@@ -452,15 +432,6 @@ tr.data-row:hover td{background:#F8FAFC}
       <button class="btn btn-outline" onclick="closeModal('modal-session')">Cancelar</button>
       <button class="btn btn-primary" id="session-save-btn" onclick="saveSession()">Guardar</button>
     </div>
-  </div>
-</div>
-
-<!-- MODAL: VICTIM -->
-<div class="overlay" id="modal-victim">
-  <div class="modal" style="width:380px">
-    <div class="modal-header"><div class="modal-header-info"><div class="modal-title" id="victim-modal-title">Nueva Víctima</div></div><button class="close-btn" onclick="closeModal('modal-victim')">✕</button></div>
-    <div class="modal-body"><div class="form-group-m"><label class="form-label">Nombre Completo</label><input id="f-victim-name" class="form-input" placeholder="Nombre completo de la víctima"></div></div>
-    <div class="modal-footer"><button class="btn btn-outline" onclick="closeModal('modal-victim')">Cancelar</button><button class="btn btn-primary" id="victim-save-btn" onclick="saveVictim()">Guardar</button></div>
   </div>
 </div>
 
@@ -520,14 +491,14 @@ const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
   auth: { persistSession: true, autoRefreshToken: true }
 });
 
-const ALL_MODULES = ["sessions","search","reports","victims","staff","documents"];
-const MODULE_LABELS = {sessions:'Registro de Sesiones de Cámara Gesell',search:'Búsqueda de Sesiones',reports:'Informes y Reportes',victims:'Gestión de Víctimas',staff:'Gestión de Personal',documents:'Oficios y Documentos',users:'Gestión de Usuarios'};
+const ALL_MODULES = ["sessions","search","reports","staff","documents"];
+const MODULE_LABELS = {sessions:'Registro de Sesiones de Cámara Gesell',search:'Búsqueda de Sesiones',reports:'Informes y Reportes',staff:'Gestión de Personal',documents:'Oficios y Documentos',users:'Gestión de Usuarios'};
 const MONTHS_ES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
 
 let currentUser = null;
 let isAdmin = false;
 let allowedModules = [];
-let cache = { sessions:[], victims:[], judges:[], psychologists:[], courts:[], documents:[] };
+let cache = { sessions:[], judges:[], psychologists:[], courts:[], documents:[] };
 let editingId = null;
 let deleteCtx = null;
 let staffTab = 'judges';
@@ -676,7 +647,6 @@ async function navigate(page, btn) {
   if (page==='sessions') await loadSessions();
   if (page==='search') { await loadLookups(); doSearch(); }
   if (page==='reports') { await loadSessions(); renderReports(); }
-  if (page==='victims') await loadVictims();
   if (page==='staff') await loadStaff();
   if (page==='documents') await loadDocuments();
   if (page==='users') await loadUsers();
@@ -953,53 +923,6 @@ function downloadPreviewedPdf() {
 }
 
 // ════════════════════════════════════════════
-// VICTIMS
-// ════════════════════════════════════════════
-async function loadVictims() {
-  const { data, error } = await sb.from('victims').select('*').order('full_name');
-  if (error) { showToast('Error al cargar víctimas', error.message, 'error'); return; }
-  cache.victims = data || [];
-  renderVictims();
-}
-function renderVictims() {
-  const tbody = document.getElementById('victims-tbody');
-  if (!cache.victims.length) { tbody.innerHTML = `<tr><td colspan="2"><div class="empty-state"><p>No hay víctimas registradas.</p></div></td></tr>`; return; }
-  tbody.innerHTML = cache.victims.map(v=>`
-    <tr class="data-row"><td class="bold">${escapeHtml(v.full_name)}</td>
-    <td><div class="td-actions">
-      <button class="btn btn-ghost btn-icon btn-sm" onclick="editVictim(${v.id})">✏️</button>
-      <button class="btn btn-ghost btn-icon btn-sm" onclick="askDelete(${v.id},'victim')">🗑️</button>
-    </div></td></tr>`).join('');
-}
-function openVictimModal(id) {
-  editingId = id || null;
-  document.getElementById('victim-modal-title').textContent = id?'Editar Víctima':'Nueva Víctima';
-  document.getElementById('f-victim-name').value = id ? (cache.victims.find(v=>v.id===id)?.full_name||'') : '';
-  openModal('modal-victim');
-}
-function editVictim(id){ openVictimModal(id); }
-async function saveVictim() {
-  const name = document.getElementById('f-victim-name').value.trim();
-  if (!name) { showToast('Error','Ingrese el nombre completo','error'); return; }
-  setBtnLoading('victim-save-btn', true, 'Guardar');
-  try {
-    const { data: { user } } = await sb.auth.getUser();
-    if (!user) throw new Error('Usuario no autenticado');
-    if (editingId) {
-      const { error } = await sb.from('victims').update({ full_name: name }).eq('id', editingId);
-      if (error) throw error;
-      showToast('Víctima actualizada','La víctima se actualizó correctamente');
-    } else {
-      const { error } = await sb.from('victims').insert({ full_name: name, user_id: user.id });
-      if (error) throw error;
-      showToast('Víctima creada','La víctima se creó correctamente');
-    }
-    closeModal('modal-victim'); await loadVictims();
-  } catch (err) { showToast('Error', err.message, 'error'); }
-  finally { setBtnLoading('victim-save-btn', false, 'Guardar'); }
-}
-
-// ════════════════════════════════════════════
 // STAFF
 // ════════════════════════════════════════════
 async function loadStaff() {
@@ -1180,7 +1103,6 @@ async function confirmDelete() {
   const { id, type } = deleteCtx;
   try {
     if (type === 'session') { const { error } = await sb.from('sessions').delete().eq('id', id); if(error) throw error; await loadSessions(); }
-    if (type === 'victim') { const { error } = await sb.from('victims').delete().eq('id', id); if(error) throw error; await loadVictims(); }
     if (type === 'staff') { const { error } = await sb.from(staffTab).delete().eq('id', id); if(error) throw error; await loadStaff(); }
     if (type === 'document') {
       const d = cache.documents.find(x=>x.id===id);
@@ -1228,14 +1150,6 @@ async function doImport() {
         if (error) failed++; else imported++;
       }
       await loadSessions();
-    } else if (importTarget === 'victims') {
-      for (const r of rows) {
-        const name = r['full_name']||r['Nombre']||r['nombre']||'';
-        if (!name) { failed++; continue; }
-        const { error } = await sb.from('victims').insert({ full_name:name, user_id:user.id });
-        if (error) failed++; else imported++;
-      }
-      await loadVictims();
     } else if (importTarget === 'staff') {
       for (const r of rows) {
         const name = r['full_name']||r['Nombre']||r['nombre']||'';
