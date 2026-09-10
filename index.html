@@ -276,6 +276,7 @@ tr.data-row:hover td{background:#F8FAFC}
         <div class="page-head">
           <div class="page-head-info"><h1>Registro de Sesiones de Cámara Gesell</h1><p>Gestión de sesiones y causas judiciales</p></div>
           <div class="page-head-actions" id="sessions-actions">
+            <button class="btn btn-outline btn-sm" onclick="exportBackup()">💾 Respaldo Excel</button>
             <button class="btn btn-outline btn-sm" onclick="openImport('sessions')">📤 Importar Excel</button>
             <button class="btn btn-primary btn-sm" onclick="openSessionModal()">+ Nueva Sesión</button>
           </div>
@@ -667,6 +668,57 @@ function populateSelects() {
   document.getElementById('f-juzgado').innerHTML = '<option value="">Seleccione un juzgado</option>' + cache.courts.map(c=>`<option value="${c.id}">${escapeHtml(c.full_name)}</option>`).join('');
   document.getElementById('f-juez').innerHTML = '<option value="">Seleccione un juez/a</option>' + cache.judges.map(j=>`<option value="${j.id}">${escapeHtml(j.full_name)}</option>`).join('');
   document.getElementById('f-psicologo').innerHTML = '<option value="">Seleccione un psicólogo/a</option>' + cache.psychologists.map(p=>`<option value="${p.id}">${escapeHtml(p.full_name)}</option>`).join('');
+}
+
+// ════════════════════════════════════════════
+// RESPALDO / EXPORTAR TODO A EXCEL
+// ════════════════════════════════════════════
+async function exportBackup() {
+  showToast('Preparando respaldo', 'Esto puede tardar unos segundos...');
+  try {
+    const [sessionsRes, judgesRes, psychRes, courtsRes, docsRes] = await Promise.all([
+      sb.from('sessions').select('*, judges(full_name), psychologists(full_name), courts(full_name)').order('session_date', { ascending: false }),
+      sb.from('judges').select('*').order('full_name'),
+      sb.from('psychologists').select('*').order('full_name'),
+      sb.from('courts').select('*').order('full_name'),
+      sb.from('documents').select('*').order('created_at', { ascending: false }),
+    ]);
+    if (sessionsRes.error) throw sessionsRes.error;
+
+    const wb = XLSX.utils.book_new();
+
+    const sessionsData = (sessionsRes.data || []).map(s => ({
+      'N° Disco': s.disco_number,
+      'Fecha': fmtDate(s.session_date),
+      'Causa': s.case_name,
+      'Juzgado': s.courts?.full_name || '',
+      'Víctima': s.victim_name || '',
+      'N° Oficio': s.oficio_number || '',
+      'Cantidad de Copias': s.cantidad_copias || '',
+      'Copia Entregada': s.copia_entregada ? 'Sí' : 'No',
+      'Juez/a': s.judges?.full_name || '',
+      'Psicólogo/a': s.psychologists?.full_name || '',
+    }));
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(sessionsData), 'Sesiones');
+
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet((judgesRes.data||[]).map(j=>({'Nombre Completo': j.full_name}))), 'Jueces');
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet((psychRes.data||[]).map(p=>({'Nombre Completo': p.full_name}))), 'Psicólogos');
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet((courtsRes.data||[]).map(c=>({'Nombre Completo': c.full_name}))), 'Juzgados');
+
+    const docsData = (docsRes.data || []).map(d => ({
+      'Nombre de Archivo': d.file_name,
+      'Descripción': d.description || '',
+      'Tamaño': fmtSize(d.file_size),
+      'Fecha de Subida': fmtDateOnly(d.created_at),
+    }));
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(docsData), 'Documentos (metadatos)');
+
+    const today = new Date().toISOString().slice(0,10);
+    XLSX.writeFile(wb, `Respaldo_CamaraGesell_${today}.xlsx`);
+    showToast('Respaldo generado', `Se exportaron ${sessionsData.length} sesiones y datos relacionados`);
+  } catch (err) {
+    showToast('Error al generar respaldo', err.message, 'error');
+  }
 }
 
 // ════════════════════════════════════════════
