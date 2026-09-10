@@ -1,24 +1,1268 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>web-supa-spark</title>
-    <meta name="description" content="Lovable Generated Project" />
-    <meta name="author" content="Lovable" />
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sistema Cámara Gesell — Poder Judicial Paraguay</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.3/jspdf.plugin.autotable.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#F8FAFC;--surface:#FFFFFF;--border:#E2E8F0;--border2:#CBD5E1;
+  --text:#0F172A;--text2:#475569;--muted:#94A3B8;
+  --primary:#3B82F6;--primary-dark:#2563EB;--primary-light:#EFF6FF;--primary-border:#BFDBFE;
+  --destructive:#EF4444;--destructive-light:#FEF2F2;
+  --success:#22C55E;--success-light:#F0FDF4;
+  --warn:#F59E0B;--warn-light:#FFFBEB;
+  --sidebar-bg:#1E293B;--sidebar-text:#CBD5E1;--sidebar-active-bg:#334155;--sidebar-active-text:#F1F5F9;--sidebar-hover:#293548;
+  --radius:8px;--shadow:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.04);
+  --shadow-md:0 4px 6px rgba(0,0,0,.07),0 2px 4px rgba(0,0,0,.05);
+  --shadow-lg:0 10px 15px rgba(0,0,0,.1),0 4px 6px rgba(0,0,0,.05);
+}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.5}
 
-    <meta property="og:title" content="web-supa-spark" />
-    <meta property="og:description" content="Lovable Generated Project" />
-    <meta property="og:type" content="website" />
-    <meta property="og:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+#auth-screen{display:flex;min-height:100vh;align-items:center;justify-content:center;background:linear-gradient(135deg,#EFF6FF 0%,#F8FAFC 100%);padding:16px}
+.auth-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:32px;width:100%;max-width:420px;box-shadow:var(--shadow-lg)}
+.auth-logo{text-align:center;margin-bottom:24px}
+.auth-title{font-size:22px;font-weight:700;text-align:center;margin-bottom:4px}
+.auth-sub{font-size:13px;color:var(--text2);text-align:center;margin-bottom:24px}
+.tab-list{display:grid;grid-template-columns:1fr 1fr;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:3px;margin-bottom:20px}
+.tab-trigger{padding:7px;font-size:13px;font-weight:500;border:none;background:none;cursor:pointer;border-radius:6px;color:var(--text2);transition:all .15s}
+.tab-trigger.active{background:var(--surface);color:var(--text);box-shadow:var(--shadow)}
+.form-group{margin-bottom:14px}
+.form-label{display:block;font-size:12px;font-weight:500;margin-bottom:5px;color:var(--text)}
+.input-wrap{position:relative}
+.input-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:15px;pointer-events:none}
+.input-eye{position:absolute;right:10px;top:50%;transform:translateY(-50%);color:var(--muted);background:none;border:none;cursor:pointer;padding:0}
+.form-input{width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:var(--radius);font-size:13px;font-family:inherit;outline:none;transition:border .12s;background:var(--surface)}
+.form-input:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(59,130,246,.1)}
+.form-input.with-icon{padding-left:34px}
+.form-hint{font-size:11px;color:var(--muted);margin-top:3px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:9px 16px;border-radius:var(--radius);font-size:13px;font-weight:500;cursor:pointer;border:none;transition:all .15s;font-family:inherit;text-decoration:none}
+.btn-primary{background:var(--primary);color:#fff}
+.btn-primary:hover{background:var(--primary-dark)}
+.btn-primary:disabled{opacity:.6;cursor:not-allowed}
+.btn-outline{background:var(--surface);color:var(--text);border:1px solid var(--border)}
+.btn-outline:hover{background:var(--bg)}
+.btn-ghost{background:none;color:var(--text2);border:none}
+.btn-ghost:hover{background:var(--bg);color:var(--text)}
+.btn-destructive{background:var(--destructive-light);color:var(--destructive);border:1px solid #FECACA}
+.btn-destructive:hover{background:#FEE2E2}
+.btn-sm{padding:5px 11px;font-size:12px}
+.btn-icon{padding:7px;border-radius:var(--radius)}
+.btn-full{width:100%}
+.tab-pane{display:none}
+.tab-pane.active{display:block}
 
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:site" content="@lovable_dev" />
-    <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
-  </head>
+#app-screen{display:none;height:100vh;overflow:hidden}
+.app-shell{display:flex;height:100vh}
 
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+.sidebar{width:256px;background:var(--sidebar-bg);display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto}
+.sidebar-header{padding:20px 16px 16px;border-bottom:1px solid rgba(255,255,255,.08)}
+.sidebar-logo{display:flex;align-items:center;gap:10px}
+.sidebar-content{flex:1;padding:12px 8px;overflow-y:auto}
+.sidebar-group-label{font-size:11px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:rgba(255,255,255,.3);padding:12px 8px 5px;font-family:inherit}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:6px;cursor:pointer;color:var(--sidebar-text);font-size:13px;margin-bottom:2px;transition:all .12s;border:none;background:none;width:100%;text-align:left;font-family:inherit}
+.nav-item:hover{background:var(--sidebar-hover);color:#F1F5F9}
+.nav-item.active{background:var(--sidebar-active-bg);color:var(--sidebar-active-text)}
+.sidebar-footer{padding:12px 16px;border-top:1px solid rgba(255,255,255,.08)}
+
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
+.topbar{height:56px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;gap:12px;flex-shrink:0}
+.page-title{flex:1;font-size:15px;font-weight:600}
+.content{flex:1;overflow-y:auto;padding:24px}
+
+.card{background:var(--surface);border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow)}
+.card-header{padding:16px 20px;border-bottom:1px solid var(--border)}
+.card-title{font-size:15px;font-weight:600;display:flex;align-items:center;gap:8px}
+.card-desc{font-size:12px;color:var(--text2);margin-top:3px}
+.card-content{padding:20px}
+
+.page{display:none}
+.page.active{display:block}
+.page-head{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;gap:12px}
+.page-head-info h1{font-size:24px;font-weight:700;margin-bottom:2px}
+.page-head-info p{font-size:13px;color:var(--text2)}
+.page-head-actions{display:flex;gap:8px;flex-shrink:0}
+
+.table-wrap{border-radius:var(--radius);border:1px solid var(--border);overflow:hidden}
+table{width:100%;border-collapse:collapse}
+thead tr{background:var(--bg)}
+th{font-size:12px;font-weight:500;color:var(--text2);padding:10px 14px;text-align:left;border-bottom:1px solid var(--border);white-space:nowrap}
+td{padding:11px 14px;border-bottom:1px solid var(--border);font-size:13px;color:var(--text2);vertical-align:middle}
+td.bold{color:var(--text);font-weight:500}
+tr:last-child td{border-bottom:none}
+tr.data-row:hover td{background:#F8FAFC}
+.td-actions{display:flex;gap:4px;justify-content:flex-end}
+.empty-state{text-align:center;padding:48px 20px;color:var(--muted)}
+.empty-state p{font-size:13px}
+
+.badge{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:500}
+.badge-blue{background:var(--primary-light);color:var(--primary-dark);border:1px solid var(--primary-border)}
+.badge-green{background:var(--success-light);color:#15803D;border:1px solid #BBF7D0}
+.badge-gray{background:#F1F5F9;color:#64748B;border:1px solid var(--border)}
+
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px 18px;box-shadow:var(--shadow)}
+.stat-label{font-size:11px;color:var(--text2);margin-bottom:6px;font-weight:500}
+.stat-value{font-size:30px;font-weight:700;color:var(--text);line-height:1}
+.stat-sub{font-size:11px;color:var(--muted);margin-top:4px}
+
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:500;align-items:center;justify-content:center;backdrop-filter:blur(2px)}
+.overlay.open{display:flex}
+.modal{background:var(--surface);border-radius:12px;box-shadow:var(--shadow-lg);width:480px;max-width:95vw;max-height:92vh;overflow-y:auto;border:1px solid var(--border)}
+.modal-header{padding:18px 20px 14px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;gap:10px}
+.modal-header-info{flex:1}
+.modal-title{font-size:16px;font-weight:600}
+.modal-desc{font-size:12px;color:var(--text2);margin-top:2px}
+.close-btn{background:none;border:none;cursor:pointer;color:var(--muted);padding:2px;border-radius:4px;line-height:1;font-size:18px}
+.close-btn:hover{background:var(--bg);color:var(--text)}
+.modal-body{padding:18px 20px}
+.modal-footer{padding:12px 20px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end;background:#FAFAFA;border-radius:0 0 12px 12px}
+
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.form-group-m{margin-bottom:14px}
+.full{grid-column:1/-1}
+.form-select{width:100%;padding:9px 32px 9px 12px;border:1px solid var(--border);border-radius:var(--radius);font-size:13px;font-family:inherit;outline:none;background:var(--surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394A3B8' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right 10px center;-webkit-appearance:none;appearance:none;transition:border .12s}
+.form-select:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(59,130,246,.1);outline:none}
+.form-textarea{width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:var(--radius);font-size:13px;font-family:inherit;outline:none;resize:vertical;min-height:80px;transition:border .12s}
+.form-textarea:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(59,130,246,.1)}
+.checkbox-wrap{display:flex;align-items:center;gap:8px;padding:10px 0}
+.checkbox-wrap input[type=checkbox]{width:16px;height:16px;accent-color:var(--primary);cursor:pointer}
+.checkbox-label{font-size:13px;font-weight:500;cursor:pointer}
+
+.tabs-header{display:flex;border-bottom:1px solid var(--border);margin-bottom:16px}
+.tabs-header .tab-btn{padding:9px 16px;font-size:13px;font-weight:500;border:none;background:none;cursor:pointer;color:var(--text2);border-bottom:2px solid transparent;margin-bottom:-1px;font-family:inherit;transition:all .12s}
+.tabs-header .tab-btn.active{color:var(--primary);border-bottom-color:var(--primary)}
+
+.month-nav{display:flex;align-items:center;gap:12px}
+.month-display{padding:7px 20px;border:1px solid var(--border);border-radius:var(--radius);font-size:13px;font-weight:500;min-width:180px;text-align:center;background:var(--surface);text-transform:capitalize}
+.week-row,.psych-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)}
+.week-row:last-child,.psych-row:last-child{border-bottom:none}
+
+.confirm-modal{width:380px}
+.confirm-title{font-size:16px;font-weight:600;margin-bottom:6px}
+.confirm-desc{font-size:13px;color:var(--text2)}
+
+.toast-container{position:fixed;bottom:20px;right:20px;z-index:1000;display:flex;flex-direction:column;gap:8px}
+.toast{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px 16px;box-shadow:var(--shadow-lg);max-width:360px;display:flex;align-items:flex-start;gap:10px;animation:slideIn .2s ease}
+.toast-success{border-left:3px solid var(--success)}
+.toast-error{border-left:3px solid var(--destructive)}
+.toast-title{font-size:13px;font-weight:600}
+.toast-desc{font-size:12px;color:var(--text2);margin-top:2px}
+@keyframes slideIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+
+.text-muted{color:var(--muted)}
+.text-sm{font-size:12px}
+.mb-4{margin-bottom:16px}
+.mt-4{margin-top:16px}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+
+<div class="toast-container" id="toasts"></div>
+
+<!-- ════ AUTH ════ -->
+<div id="auth-screen">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <svg width="80" height="80" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="40" cy="40" r="38" fill="#1E3A5F" stroke="#2563EB" stroke-width="2"/>
+        <text x="40" y="36" text-anchor="middle" fill="white" font-size="9" font-weight="bold" font-family="serif">PODER</text>
+        <text x="40" y="47" text-anchor="middle" fill="white" font-size="9" font-weight="bold" font-family="serif">JUDICIAL</text>
+        <text x="40" y="58" text-anchor="middle" fill="#93C5FD" font-size="7" font-family="sans-serif">PARAGUAY</text>
+        <line x1="20" y1="40" x2="60" y2="40" stroke="#93C5FD" stroke-width="0.5"/>
+      </svg>
+    </div>
+    <div class="auth-title">Sistema Cámara Gesell</div>
+    <div class="auth-sub">Gestión de sesiones y causas judiciales</div>
+
+    <div class="tab-list">
+      <button class="tab-trigger active" onclick="switchAuthTab('signin',this)">Iniciar Sesión</button>
+      <button class="tab-trigger" onclick="switchAuthTab('signup',this)">Registrarse</button>
+    </div>
+
+    <div class="tab-pane active" id="auth-signin">
+      <div class="form-group">
+        <label class="form-label">Número de Cédula</label>
+        <div class="input-wrap">
+          <span class="input-icon">👤</span>
+          <input id="login-ci" class="form-input with-icon" type="text" placeholder="Usuario" maxlength="7" oninput="this.value=this.value.replace(/\D/g,'').slice(0,7)">
+        </div>
+        <div class="form-hint">7 dígitos sin puntos ni guiones</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Contraseña</label>
+        <div class="input-wrap">
+          <span class="input-icon">🔒</span>
+          <input id="login-pass" class="form-input with-icon" type="password" placeholder="Contraseña" style="padding-right:36px">
+          <button class="input-eye" type="button" onclick="togglePass('login-pass')">👁</button>
+        </div>
+      </div>
+      <button class="btn btn-primary btn-full" id="login-btn" onclick="doLogin()">Iniciar Sesión</button>
+    </div>
+
+    <div class="tab-pane" id="auth-signup">
+      <div class="form-group">
+        <label class="form-label">Nombre Completo</label>
+        <input id="reg-name" class="form-input" type="text" placeholder="Juan Pérez">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Número de Cédula</label>
+        <div class="input-wrap">
+          <span class="input-icon">👤</span>
+          <input id="reg-ci" class="form-input with-icon" type="text" placeholder="Usuario" maxlength="7" oninput="this.value=this.value.replace(/\D/g,'').slice(0,7)">
+        </div>
+        <div class="form-hint">7 dígitos sin puntos ni guiones</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Contraseña</label>
+        <div class="input-wrap">
+          <span class="input-icon">🔒</span>
+          <input id="reg-pass" class="form-input with-icon" type="password" placeholder="Contraseña" style="padding-right:36px">
+          <button class="input-eye" type="button" onclick="togglePass('reg-pass')">👁</button>
+        </div>
+      </div>
+      <button class="btn btn-primary btn-full" id="register-btn" onclick="doRegister()">Registrarse</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════ APP ════ -->
+<div id="app-screen">
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <svg width="36" height="36" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="40" cy="40" r="38" fill="#2563EB"/>
+          <text x="40" y="44" text-anchor="middle" fill="white" font-size="12" font-weight="bold" font-family="serif">PJ</text>
+        </svg>
+        <div>
+          <div style="color:#F1F5F9;font-size:13px;font-weight:600">Cámara Gesell</div>
+          <div style="color:#94A3B8;font-size:10px">Poder Judicial · PY</div>
+        </div>
+      </div>
+    </div>
+    <div class="sidebar-content" id="sidebar-nav">
+      <div class="sidebar-group-label">Módulos</div>
+      <button class="nav-item active" data-module="sessions" onclick="navigate('sessions',this)">📹 Sesiones de Cámara Gesell</button>
+      <button class="nav-item" data-module="search" onclick="navigate('search',this)">🔍 Búsqueda de Sesiones</button>
+      <button class="nav-item" data-module="reports" onclick="navigate('reports',this)">📄 Informes y Reportes</button>
+      <button class="nav-item" data-module="victims" onclick="navigate('victims',this)">👥 Gestión de Víctimas</button>
+      <button class="nav-item" data-module="staff" onclick="navigate('staff',this)">💼 Gestión de Personal</button>
+      <button class="nav-item" data-module="documents" onclick="navigate('documents',this)">📋 Oficios y Documentos</button>
+      <div class="sidebar-group-label" id="admin-label" style="display:none">Administración</div>
+      <button class="nav-item" id="users-nav" style="display:none" onclick="navigate('users',this)">🛡 Gestión de Usuarios</button>
+    </div>
+    <div class="sidebar-footer">
+      <div style="color:#64748B;font-size:11px;padding:4px 10px 10px" id="whoami"></div>
+      <button class="btn btn-ghost btn-full" style="color:#94A3B8;justify-content:flex-start" onclick="doLogout()">🚪 Cerrar Sesión</button>
+    </div>
+  </aside>
+
+  <div class="main">
+    <div class="topbar"><div class="page-title" id="topbar-title">Registro de Sesiones de Cámara Gesell</div></div>
+    <div class="content">
+
+      <!-- SESSIONS -->
+      <div class="page active" id="page-sessions">
+        <div class="page-head">
+          <div class="page-head-info"><h1>Registro de Sesiones de Cámara Gesell</h1><p>Gestión de sesiones y causas judiciales</p></div>
+          <div class="page-head-actions" id="sessions-actions">
+            <button class="btn btn-outline btn-sm" onclick="openImport('sessions')">📤 Importar Excel</button>
+            <button class="btn btn-primary btn-sm" onclick="openSessionModal()">+ Nueva Sesión</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Sesiones Registradas</div></div>
+          <div class="card-content" style="padding:0">
+            <div class="table-wrap" style="border:none;border-radius:0">
+              <table>
+                <thead><tr><th>N° Disco</th><th>Fecha</th><th>Causa</th><th>Juzgado</th><th>Víctima</th><th>N° Oficio</th><th>Copias Entregadas</th><th>Juez/a</th><th>Psicólogo/a</th><th style="text-align:right">Acciones</th></tr></thead>
+                <tbody id="sessions-tbody"><tr><td colspan="10"><div class="empty-state"><p>Cargando sesiones...</p></div></td></tr></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SEARCH -->
+      <div class="page" id="page-search">
+        <div class="page-head"><div class="page-head-info"><h1>Búsqueda de Sesiones</h1><p>Buscar y filtrar sesiones de Cámara Gesell registradas</p></div></div>
+        <div class="card mb-4">
+          <div class="card-header"><div class="card-title">Filtros de Búsqueda</div><div class="card-desc">Aplicar filtros para refinar los resultados</div></div>
+          <div class="card-content">
+            <div class="form-grid">
+              <div><label class="form-label">🔍 Número de Disco</label><input id="s-disco" class="form-input" type="number" placeholder="Buscar por N° de disco..." oninput="doSearch()"></div>
+              <div><label class="form-label">Nombre de Causa</label><input id="s-causa" class="form-input" placeholder="Buscar por nombre de causa..." oninput="doSearch()"></div>
+              <div><label class="form-label">Juzgado a Cargo</label><input id="s-juzgado" class="form-input" placeholder="Buscar por juzgado..." oninput="doSearch()"></div>
+              <div><label class="form-label">Fecha Desde</label><input id="s-desde" class="form-input" type="date" oninput="doSearch()"></div>
+              <div><label class="form-label">Fecha Hasta</label><input id="s-hasta" class="form-input" type="date" oninput="doSearch()"></div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div style="display:flex;align-items:center;justify-content:space-between"><div class="card-title">🔍 Resultados de Búsqueda</div><span class="text-sm text-muted" id="search-count">0 resultados</span></div></div>
+          <div class="card-content" style="padding:0">
+            <div class="table-wrap" style="border:none;border-radius:0">
+              <table>
+                <thead><tr><th>N° Disco</th><th>Fecha</th><th>Causa</th><th>Juzgado</th><th>Víctima</th><th>N° Oficio</th><th>Copias Entregadas</th><th>Juez/a</th><th>Psicólogo/a</th></tr></thead>
+                <tbody id="search-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- REPORTS -->
+      <div class="page" id="page-reports">
+        <div class="page-head">
+          <div class="page-head-info"><h1>Informes y Reportes</h1><p>Estadísticas y exportación de sesiones registradas</p></div>
+          <div class="page-head-actions"><button class="btn btn-primary btn-sm" onclick="generatePDF()">📄 Generar PDF</button></div>
+        </div>
+        <div class="card mb-4">
+          <div class="card-header"><div class="card-title">📅 Período de Consulta</div></div>
+          <div class="card-content">
+            <div class="month-nav">
+              <span style="font-size:13px;font-weight:500">Seleccionar Mes</span>
+              <button class="btn btn-outline btn-sm" onclick="changeMonth(-1)">←</button>
+              <div class="month-display" id="month-display"></div>
+              <button class="btn btn-outline btn-sm" onclick="changeMonth(1)">→</button>
+            </div>
+          </div>
+        </div>
+        <div class="stats-grid" id="report-stats"></div>
+        <div class="grid-2">
+          <div class="card"><div class="card-header"><div class="card-title">Desglose Semanal</div></div><div class="card-content" id="weekly-breakdown"></div></div>
+          <div class="card"><div class="card-header"><div class="card-title">Psicólogos que realizaron Cámara</div></div><div class="card-content" id="psych-summary"></div></div>
+        </div>
+      </div>
+
+      <!-- VICTIMS -->
+      <div class="page" id="page-victims">
+        <div class="page-head">
+          <div class="page-head-info"><h1>Gestión de Víctimas</h1><p>Mantenimiento de registros de víctimas</p></div>
+          <div class="page-head-actions" id="victims-actions">
+            <button class="btn btn-outline btn-sm" onclick="openImport('victims')">📤 Importar Excel</button>
+            <button class="btn btn-primary btn-sm" onclick="openVictimModal()">+ Nueva Víctima</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Víctimas Registradas</div></div>
+          <div class="card-content" style="padding:0">
+            <div class="table-wrap" style="border:none;border-radius:0">
+              <table><thead><tr><th>Nombre Completo</th><th style="text-align:right">Acciones</th></tr></thead><tbody id="victims-tbody"></tbody></table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STAFF -->
+      <div class="page" id="page-staff">
+        <div class="page-head"><div class="page-head-info"><h1>Gestión de Personal</h1><p>Mantenimiento de jueces, psicólogos y juzgados</p></div></div>
+        <div class="card">
+          <div class="card-header">
+            <div style="display:flex;align-items:center;justify-content:space-between">
+              <div class="tabs-header" style="border:none;margin:0">
+                <button class="tab-btn active" onclick="switchStaffTab('judges',this)">Jueces</button>
+                <button class="tab-btn" onclick="switchStaffTab('psychologists',this)">Psicólogos</button>
+                <button class="tab-btn" onclick="switchStaffTab('courts',this)">Juzgados</button>
+              </div>
+              <div style="display:flex;gap:8px" id="staff-actions">
+                <button class="btn btn-outline btn-sm" onclick="openImport('staff')">📤 Importar Excel</button>
+                <button class="btn btn-primary btn-sm" id="staff-add-btn" onclick="openStaffModal()">+ Nuevo Juez/a</button>
+              </div>
+            </div>
+          </div>
+          <div class="card-content" style="padding:0">
+            <div class="table-wrap" style="border:none;border-radius:0">
+              <table><thead><tr><th>Nombre Completo</th><th style="text-align:right">Acciones</th></tr></thead><tbody id="staff-tbody"></tbody></table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- DOCUMENTS -->
+      <div class="page" id="page-documents">
+        <div class="page-head"><div class="page-head-info"><h1>Oficios y Documentos</h1><p>Gestión de oficios y documentos judiciales</p></div></div>
+        <div class="card mb-4" id="upload-card" style="display:none">
+          <div class="card-header"><div class="card-title">📤 Subir Documento</div></div>
+          <div class="card-content">
+            <div class="form-group-m"><label class="form-label">📄 Archivo (PDF, Word, imágenes)</label><input id="doc-file" class="form-input" type="file" accept="image/*,.pdf,.doc,.docx"></div>
+            <div class="form-group-m"><label class="form-label">Descripción (opcional)</label><textarea id="doc-desc" class="form-textarea" placeholder="Descripción del documento..."></textarea></div>
+            <button class="btn btn-primary btn-sm" id="upload-btn" onclick="uploadDocument()">Subir Documento</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">📋 Mis Documentos</div></div>
+          <div class="card-content" style="padding:0">
+            <div class="table-wrap" style="border:none;border-radius:0">
+              <table><thead><tr><th>Tipo</th><th>Nombre</th><th>Descripción</th><th>Tamaño</th><th>Fecha</th><th style="text-align:right">Acciones</th></tr></thead><tbody id="docs-tbody"></tbody></table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- USERS -->
+      <div class="page" id="page-users">
+        <div class="page-head"><div class="page-head-info"><h1>Gestión de Usuarios</h1><p>Administración de roles y permisos del sistema</p></div></div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Usuarios del Sistema</div></div>
+          <div class="card-content" style="padding:0">
+            <div class="table-wrap" style="border:none;border-radius:0">
+              <table><thead><tr><th>Nombre</th><th>Rol</th><th>Sesiones</th><th>Búsqueda</th><th>Informes</th><th>Víctimas</th><th>Personal</th><th>Documentos</th></tr></thead><tbody id="users-tbody"></tbody></table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- MODAL: SESSION -->
+<div class="overlay" id="modal-session">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-header-info"><div class="modal-title" id="session-modal-title">Nueva Sesión</div><div class="modal-desc">Complete los datos de la sesión de Cámara Gesell</div></div>
+      <button class="close-btn" onclick="closeModal('modal-session')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group-m"><label class="form-label">N° de Disco</label><input id="f-disco" class="form-input" type="number" placeholder="8"></div>
+      <div class="form-group-m"><label class="form-label">Fecha y Hora</label><input id="f-fecha" class="form-input" type="datetime-local"></div>
+      <div class="form-group-m"><label class="form-label">Nombre de la Causa</label><input id="f-causa" class="form-input" placeholder="Ej: Causa 123/2025 - Caso XXX"></div>
+      <div class="form-group-m"><label class="form-label">Juzgado a Cargo</label><select id="f-juzgado" class="form-select"><option value="">Seleccione un juzgado</option></select></div>
+      <div class="form-group-m"><label class="form-label">Víctima</label><input id="f-victima" class="form-input" placeholder="Nombre de la víctima"></div>
+      <div class="form-group-m"><label class="form-label">N° de Oficio</label><input id="f-oficio" class="form-input" placeholder="Ej: 190/2024"></div>
+      <div class="form-group-m"><label class="form-label">Cantidad de Copias</label><input id="f-copias" class="form-input" type="number" placeholder="1"></div>
+      <div class="form-group-m"><label class="form-label">Juez/a Presente</label><select id="f-juez" class="form-select"><option value="">Seleccione un juez/a</option></select></div>
+      <div class="form-group-m"><label class="form-label">Psicólogo/a a Cargo</label><select id="f-psicologo" class="form-select"><option value="">Seleccione un psicólogo/a</option></select></div>
+      <div class="checkbox-wrap"><input type="checkbox" id="f-copia-entregada"><label class="checkbox-label" for="f-copia-entregada">Copia entregada a psicóloga</label></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-session')">Cancelar</button>
+      <button class="btn btn-primary" id="session-save-btn" onclick="saveSession()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: VICTIM -->
+<div class="overlay" id="modal-victim">
+  <div class="modal" style="width:380px">
+    <div class="modal-header"><div class="modal-header-info"><div class="modal-title" id="victim-modal-title">Nueva Víctima</div></div><button class="close-btn" onclick="closeModal('modal-victim')">✕</button></div>
+    <div class="modal-body"><div class="form-group-m"><label class="form-label">Nombre Completo</label><input id="f-victim-name" class="form-input" placeholder="Nombre completo de la víctima"></div></div>
+    <div class="modal-footer"><button class="btn btn-outline" onclick="closeModal('modal-victim')">Cancelar</button><button class="btn btn-primary" id="victim-save-btn" onclick="saveVictim()">Guardar</button></div>
+  </div>
+</div>
+
+<!-- MODAL: STAFF -->
+<div class="overlay" id="modal-staff">
+  <div class="modal" style="width:380px">
+    <div class="modal-header"><div class="modal-header-info"><div class="modal-title" id="staff-modal-title">Nuevo Juez/a</div></div><button class="close-btn" onclick="closeModal('modal-staff')">✕</button></div>
+    <div class="modal-body"><div class="form-group-m"><label class="form-label">Nombre Completo</label><input id="f-staff-name" class="form-input" placeholder="Nombre completo"></div></div>
+    <div class="modal-footer"><button class="btn btn-outline" onclick="closeModal('modal-staff')">Cancelar</button><button class="btn btn-primary" id="staff-save-btn" onclick="saveStaff()">Guardar</button></div>
+  </div>
+</div>
+
+<!-- MODAL: IMPORT -->
+<div class="overlay" id="modal-import">
+  <div class="modal" style="width:420px">
+    <div class="modal-header"><div class="modal-header-info"><div class="modal-title">Importar desde Excel</div><div class="modal-desc">Seleccione un archivo Excel (.xlsx, .xls) para importar datos</div></div><button class="close-btn" onclick="closeModal('modal-import')">✕</button></div>
+    <div class="modal-body">
+      <input id="import-file" class="form-input" type="file" accept=".xlsx,.xls,.csv">
+      <div class="form-hint mt-4">Columna requerida: <b>full_name</b> (o <b>Nombre</b>) para víctimas/personal. Para sesiones: disco_number, session_date, case_name, victim_name, oficio_number, cantidad_copias.</div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-outline" onclick="closeModal('modal-import')">Cancelar</button><button class="btn btn-primary" id="import-btn" onclick="doImport()">Importar</button></div>
+  </div>
+</div>
+
+<!-- MODAL: PDF PREVIEW -->
+<div class="overlay" id="modal-pdf-preview">
+  <div class="modal" style="width:90vw;max-width:900px;height:90vh;display:flex;flex-direction:column">
+    <div class="modal-header">
+      <div class="modal-header-info"><div class="modal-title">Vista previa del informe</div><div class="modal-desc" id="pdf-preview-filename"></div></div>
+      <button class="close-btn" onclick="closePdfPreview()">✕</button>
+    </div>
+    <div style="flex:1;overflow:hidden;padding:0 20px">
+      <iframe id="pdf-preview-frame" style="width:100%;height:100%;border:1px solid var(--border);border-radius:6px" title="Vista previa PDF"></iframe>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closePdfPreview()">Cerrar</button>
+      <button class="btn btn-primary" id="pdf-download-btn" onclick="downloadPreviewedPdf()">⬇️ Descargar PDF</button>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIRM -->
+<div class="overlay" id="modal-confirm">
+  <div class="modal confirm-modal">
+    <div class="modal-header"><div class="modal-header-info"><div class="confirm-title">¿Está seguro?</div><div class="confirm-desc">Esta acción no se puede deshacer. Esto eliminará permanentemente el registro.</div></div></div>
+    <div class="modal-footer"><button class="btn btn-outline" onclick="closeModal('modal-confirm')">Cancelar</button><button class="btn btn-destructive" id="confirm-del-btn" onclick="confirmDelete()">Eliminar</button></div>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════════
+// SUPABASE — proyecto real del usuario
+// ════════════════════════════════════════════
+const SUPABASE_URL = "https://dpqnekcgoovnvbmmomhj.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRwcW5la2Nnb292bnZibW1vbWhqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAwNzg5MzMsImV4cCI6MjA3NTY1NDkzM30.WXBco8SoKQ1VcQAZBblKJJMkEtWYud6c8DxsWMUH-A4";
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+  auth: { persistSession: true, autoRefreshToken: true }
+});
+
+const ALL_MODULES = ["sessions","search","reports","victims","staff","documents"];
+const MODULE_LABELS = {sessions:'Registro de Sesiones de Cámara Gesell',search:'Búsqueda de Sesiones',reports:'Informes y Reportes',victims:'Gestión de Víctimas',staff:'Gestión de Personal',documents:'Oficios y Documentos',users:'Gestión de Usuarios'};
+const MONTHS_ES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+
+let currentUser = null;
+let isAdmin = false;
+let allowedModules = [];
+let cache = { sessions:[], victims:[], judges:[], psychologists:[], courts:[], documents:[] };
+let editingId = null;
+let deleteCtx = null;
+let staffTab = 'judges';
+let reportDate = new Date();
+let importTarget = '';
+
+// ════ UI HELPERS ════
+function showToast(title, desc='', type='success') {
+  const c = document.getElementById('toasts');
+  const t = document.createElement('div');
+  t.className = 'toast toast-'+(type==='error'?'error':'success');
+  t.innerHTML = `<div><div class="toast-title">${title}</div>${desc?`<div class="toast-desc">${escapeHtml(desc)}</div>`:''}</div>`;
+  c.appendChild(t);
+  setTimeout(()=>t.remove(),4000);
+}
+function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+function openModal(id){ document.getElementById(id).classList.add('open'); }
+function closeModal(id){ document.getElementById(id).classList.remove('open'); editingId=null; }
+document.querySelectorAll('.overlay').forEach(ov=>ov.addEventListener('click', e=>{ if(e.target===ov) ov.classList.remove('open'); }));
+function togglePass(id){ const i=document.getElementById(id); i.type = i.type==='password'?'text':'password'; }
+function setBtnLoading(id, loading, label) {
+  const b = document.getElementById(id);
+  if (!b) return;
+  b.disabled = loading;
+  b.innerHTML = loading ? '<span class="spinner"></span> Guardando...' : label;
+}
+function fmtDate(str){ if(!str) return '-'; const d=new Date(str); return d.toLocaleDateString('es-PY',{day:'2-digit',month:'2-digit',year:'numeric'})+' '+d.toLocaleTimeString('es-PY',{hour:'2-digit',minute:'2-digit'}); }
+function fmtDateOnly(str){ if(!str) return '-'; return new Date(str).toLocaleDateString('es-PY',{day:'2-digit',month:'2-digit',year:'numeric'}); }
+function fmtSize(bytes){ if(!bytes) return '0 B'; const k=1024,s=['Bytes','KB','MB','GB']; const i=Math.floor(Math.log(bytes)/Math.log(k)); return Math.round(bytes/Math.pow(k,i)*100)/100+' '+s[i]; }
+
+// ════════════════════════════════════════════
+// AUTH
+// ════════════════════════════════════════════
+function switchAuthTab(tab, btn) {
+  document.querySelectorAll('.tab-trigger').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('#auth-screen .tab-pane').forEach(p=>p.classList.remove('active'));
+  document.getElementById('auth-'+tab).classList.add('active');
+}
+
+async function doLogin() {
+  const ci = document.getElementById('login-ci').value;
+  const pass = document.getElementById('login-pass').value;
+  if (ci.length !== 7 || !/^\d+$/.test(ci)) { showToast('Error de validación','El número de cédula debe tener exactamente 7 dígitos','error'); return; }
+  if (!pass) { showToast('Error','Ingrese su contraseña','error'); return; }
+  setBtnLoading('login-btn', true, 'Iniciar Sesión');
+  try {
+    const internalEmail = `${ci}@gesell.local`;
+    const { error } = await sb.auth.signInWithPassword({ email: internalEmail, password: pass });
+    if (error) throw error;
+    showToast('Inicio de sesión exitoso','Bienvenido al sistema');
+    await initSession();
+  } catch (err) {
+    showToast('Error al iniciar sesión','Cédula o contraseña incorrectos','error');
+  } finally {
+    document.getElementById('login-btn').disabled = false;
+    document.getElementById('login-btn').textContent = 'Iniciar Sesión';
+  }
+}
+
+async function doRegister() {
+  const fullName = document.getElementById('reg-name').value;
+  const ci = document.getElementById('reg-ci').value;
+  const pass = document.getElementById('reg-pass').value;
+  if (!fullName) { showToast('Error','Ingrese su nombre completo','error'); return; }
+  if (ci.length !== 7 || !/^\d+$/.test(ci)) { showToast('Error de validación','El número de cédula debe tener exactamente 7 dígitos','error'); return; }
+  if (!pass) { showToast('Error','Ingrese una contraseña','error'); return; }
+  setBtnLoading('register-btn', true, 'Registrarse');
+  try {
+    const internalEmail = `${ci}@gesell.local`;
+    const { error } = await sb.auth.signUp({
+      email: internalEmail, password: pass,
+      options: { data: { full_name: fullName, cedula: ci }, emailRedirectTo: window.location.origin }
+    });
+    if (error) throw error;
+    showToast('Registro exitoso','Tu cuenta ha sido creada correctamente');
+  } catch (err) {
+    showToast('Error al registrarse', err.message === 'User already registered' ? 'Esta cédula ya está registrada' : err.message, 'error');
+  } finally {
+    document.getElementById('register-btn').disabled = false;
+    document.getElementById('register-btn').textContent = 'Registrarse';
+  }
+}
+
+async function doLogout() {
+  await sb.auth.signOut();
+  currentUser = null;
+  document.getElementById('app-screen').style.display = 'none';
+  document.getElementById('auth-screen').style.display = 'flex';
+  showToast('Sesión cerrada','Has cerrado sesión exitosamente');
+}
+
+async function initSession() {
+  const { data: { user } } = await sb.auth.getUser();
+  if (!user) {
+    document.getElementById('auth-screen').style.display = 'flex';
+    document.getElementById('app-screen').style.display = 'none';
+    return;
+  }
+  currentUser = user;
+
+  const { data: roleRow } = await sb.from('user_roles').select('role').eq('user_id', user.id).maybeSingle();
+  isAdmin = roleRow?.role === 'admin';
+
+  if (isAdmin) {
+    allowedModules = [...ALL_MODULES];
+  } else {
+    const { data: perms } = await sb.from('user_module_permissions').select('module').eq('user_id', user.id);
+    allowedModules = (perms||[]).map(p=>p.module);
+  }
+
+  document.getElementById('auth-screen').style.display = 'none';
+  document.getElementById('app-screen').style.display = 'block';
+  document.getElementById('admin-label').style.display = isAdmin ? 'block' : 'none';
+  document.getElementById('users-nav').style.display = isAdmin ? 'flex' : 'none';
+  document.getElementById('upload-card').style.display = isAdmin ? 'block' : 'none';
+
+  document.querySelectorAll('#sidebar-nav .nav-item[data-module]').forEach(btn => {
+    const mod = btn.dataset.module;
+    btn.style.display = (isAdmin || allowedModules.includes(mod)) ? 'flex' : 'none';
+  });
+
+  const { data: profile } = await sb.from('profiles').select('full_name').eq('id', user.id).maybeSingle();
+  document.getElementById('whoami').textContent = profile?.full_name || user.email;
+
+  const firstBtn = document.querySelector('#sidebar-nav .nav-item[data-module]:not([style*="display: none"])');
+  if (firstBtn) navigate(firstBtn.dataset.module, firstBtn);
+}
+
+sb.auth.onAuthStateChange((event) => {
+  if (event === 'SIGNED_OUT') {
+    document.getElementById('auth-screen').style.display = 'flex';
+    document.getElementById('app-screen').style.display = 'none';
+  }
+});
+
+// ════════════════════════════════════════════
+// NAVIGATION
+// ════════════════════════════════════════════
+async function navigate(page, btn) {
+  document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  document.getElementById('topbar-title').textContent = MODULE_LABELS[page] || page;
+  if (page==='sessions') await loadSessions();
+  if (page==='search') { await loadLookups(); doSearch(); }
+  if (page==='reports') { await loadSessions(); renderReports(); }
+  if (page==='victims') await loadVictims();
+  if (page==='staff') await loadStaff();
+  if (page==='documents') await loadDocuments();
+  if (page==='users') await loadUsers();
+}
+
+// ════════════════════════════════════════════
+// LOOKUPS
+// ════════════════════════════════════════════
+async function loadLookups() {
+  const [j,p,c] = await Promise.all([
+    sb.from('judges').select('*').order('full_name'),
+    sb.from('psychologists').select('*').order('full_name'),
+    sb.from('courts').select('*').order('full_name'),
+  ]);
+  cache.judges = j.data||[]; cache.psychologists = p.data||[]; cache.courts = c.data||[];
+}
+function populateSelects() {
+  document.getElementById('f-juzgado').innerHTML = '<option value="">Seleccione un juzgado</option>' + cache.courts.map(c=>`<option value="${c.id}">${escapeHtml(c.full_name)}</option>`).join('');
+  document.getElementById('f-juez').innerHTML = '<option value="">Seleccione un juez/a</option>' + cache.judges.map(j=>`<option value="${j.id}">${escapeHtml(j.full_name)}</option>`).join('');
+  document.getElementById('f-psicologo').innerHTML = '<option value="">Seleccione un psicólogo/a</option>' + cache.psychologists.map(p=>`<option value="${p.id}">${escapeHtml(p.full_name)}</option>`).join('');
+}
+
+// ════════════════════════════════════════════
+// SESSIONS
+// ════════════════════════════════════════════
+async function loadSessions() {
+  await loadLookups();
+  const { data, error } = await sb.from('sessions')
+    .select('*, victims(id,full_name), judges(id,full_name), psychologists(id,full_name), courts(id,full_name)')
+    .order('created_at', { ascending: false });
+  if (error) { showToast('Error al cargar sesiones', error.message, 'error'); return; }
+  cache.sessions = data || [];
+  renderSessions(cache.sessions);
+}
+function renderSessions(sessions) {
+  const tbody = document.getElementById('sessions-tbody');
+  if (!sessions.length) { tbody.innerHTML = `<tr><td colspan="10"><div class="empty-state"><p>No hay sesiones registradas. Haz clic en "Nueva Sesión" para comenzar.</p></div></td></tr>`; return; }
+  tbody.innerHTML = sessions.map(s => `
+    <tr class="data-row">
+      <td class="bold">${s.disco_number}</td>
+      <td>${fmtDate(s.session_date)}</td>
+      <td class="bold" style="max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml(s.case_name)}</td>
+      <td style="max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml(s.courts?.full_name || s.defendant_name || '-')}</td>
+      <td>${escapeHtml(s.victim_name || s.victims?.full_name || '-')}</td>
+      <td>${escapeHtml(s.oficio_number || '-')}</td>
+      <td><span class="badge ${s.copia_entregada?'badge-green':'badge-gray'}">${s.copia_entregada?'Sí':'No'}</span></td>
+      <td>${escapeHtml(s.judges?.full_name || '-')}</td>
+      <td>${escapeHtml(s.psychologists?.full_name || '-')}</td>
+      <td><div class="td-actions">
+        <button class="btn btn-ghost btn-icon btn-sm" onclick="editSession(${s.id})" title="Editar">✏️</button>
+        <button class="btn btn-ghost btn-icon btn-sm" onclick="askDelete(${s.id},'session')" title="Eliminar">🗑️</button>
+      </div></td>
+    </tr>`).join('');
+}
+async function openSessionModal(id) {
+  await loadLookups();
+  populateSelects();
+  editingId = id || null;
+  document.getElementById('session-modal-title').textContent = id ? 'Editar Sesión' : 'Nueva Sesión';
+  if (id) {
+    const s = cache.sessions.find(x=>x.id===id);
+    document.getElementById('f-disco').value = s.disco_number;
+    document.getElementById('f-fecha').value = new Date(s.session_date).toISOString().slice(0,16);
+    document.getElementById('f-causa').value = s.case_name;
+    document.getElementById('f-juzgado').value = s.court_id || '';
+    document.getElementById('f-victima').value = s.victim_name || s.victims?.full_name || '';
+    document.getElementById('f-oficio').value = s.oficio_number || '';
+    document.getElementById('f-copias').value = s.cantidad_copias || '';
+    document.getElementById('f-juez').value = s.judge_id || '';
+    document.getElementById('f-psicologo').value = s.psychologist_id || '';
+    document.getElementById('f-copia-entregada').checked = s.copia_entregada || false;
+  } else {
+    ['f-disco','f-fecha','f-causa','f-victima','f-oficio','f-copias'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('f-juzgado').value=''; document.getElementById('f-juez').value=''; document.getElementById('f-psicologo').value='';
+    document.getElementById('f-copia-entregada').checked=false;
+  }
+  openModal('modal-session');
+}
+function editSession(id){ openSessionModal(id); }
+async function saveSession() {
+  const disco = parseInt(document.getElementById('f-disco').value);
+  const fecha = document.getElementById('f-fecha').value;
+  const causa = document.getElementById('f-causa').value;
+  if (!disco || !fecha || !causa) { showToast('Error','Complete los campos obligatorios','error'); return; }
+  setBtnLoading('session-save-btn', true, 'Guardar');
+  try {
+    const { data: { user } } = await sb.auth.getUser();
+    if (!user) throw new Error('Usuario no autenticado');
+    const payload = {
+      disco_number: disco, session_date: fecha, case_name: causa, defendant_name: 'N/A',
+      court_id: parseInt(document.getElementById('f-juzgado').value) || null,
+      victim_name: document.getElementById('f-victima').value || null,
+      oficio_number: document.getElementById('f-oficio').value || null,
+      cantidad_copias: parseInt(document.getElementById('f-copias').value) || null,
+      judge_id: parseInt(document.getElementById('f-juez').value) || null,
+      psychologist_id: parseInt(document.getElementById('f-psicologo').value) || null,
+      copia_entregada: document.getElementById('f-copia-entregada').checked,
+      user_id: user.id,
+    };
+    if (editingId) {
+      const { error } = await sb.from('sessions').update(payload).eq('id', editingId);
+      if (error) throw error;
+      showToast('Sesión actualizada','La sesión se actualizó correctamente');
+    } else {
+      const { error } = await sb.from('sessions').insert(payload);
+      if (error) throw error;
+      showToast('Sesión creada','La sesión se creó correctamente');
+    }
+    closeModal('modal-session');
+    await loadSessions();
+  } catch (err) {
+    showToast('Error', err.message, 'error');
+  } finally {
+    setBtnLoading('session-save-btn', false, 'Guardar');
+  }
+}
+
+// ════════════════════════════════════════════
+// SEARCH
+// ════════════════════════════════════════════
+function doSearch() {
+  const disco = document.getElementById('s-disco').value;
+  const causa = document.getElementById('s-causa').value.toLowerCase();
+  const juzgado = document.getElementById('s-juzgado').value.toLowerCase();
+  const desde = document.getElementById('s-desde').value;
+  const hasta = document.getElementById('s-hasta').value;
+  let results = (cache.sessions||[]).filter(s => {
+    if (disco && s.disco_number !== parseInt(disco)) return false;
+    if (causa && !s.case_name.toLowerCase().includes(causa)) return false;
+    if (juzgado && !(s.courts?.full_name||'').toLowerCase().includes(juzgado)) return false;
+    if (desde && s.session_date < desde) return false;
+    if (hasta && s.session_date.slice(0,10) > hasta) return false;
+    return true;
+  });
+  document.getElementById('search-count').textContent = results.length + ' resultados';
+  const tbody = document.getElementById('search-tbody');
+  if (!results.length) { tbody.innerHTML = `<tr><td colspan="9"><div class="empty-state"><p>No se encontraron sesiones con los filtros aplicados.</p></div></td></tr>`; return; }
+  tbody.innerHTML = results.map(s=>`
+    <tr class="data-row">
+      <td class="bold">${s.disco_number}</td><td>${fmtDate(s.session_date)}</td><td class="bold">${escapeHtml(s.case_name)}</td>
+      <td>${escapeHtml(s.courts?.full_name||'-')}</td><td>${escapeHtml(s.victim_name||s.victims?.full_name||'-')}</td>
+      <td>${escapeHtml(s.oficio_number||'-')}</td><td><span class="badge ${s.copia_entregada?'badge-green':'badge-gray'}">${s.copia_entregada?'Sí':'No'}</span></td>
+      <td>${escapeHtml(s.judges?.full_name||'-')}</td><td>${escapeHtml(s.psychologists?.full_name||'-')}</td>
+    </tr>`).join('');
+}
+
+// ════════════════════════════════════════════
+// REPORTS + PDF
+// ════════════════════════════════════════════
+function getReportSessions() {
+  const y = reportDate.getFullYear(), m = reportDate.getMonth();
+  return (cache.sessions||[]).filter(s => { const d=new Date(s.session_date); return d.getFullYear()===y && d.getMonth()===m; });
+}
+function renderReports() {
+  const y = reportDate.getFullYear(), m = reportDate.getMonth();
+  document.getElementById('month-display').textContent = MONTHS_ES[m] + ' de ' + y;
+  const sessions = getReportSessions();
+  const uniqueVictims = new Set(sessions.map(s=>s.victim_name||s.victim_id).filter(Boolean)).size;
+  const uniqueJudges = new Set(sessions.map(s=>s.judge_id).filter(Boolean)).size;
+  const uniquePsychs = new Set(sessions.map(s=>s.psychologist_id).filter(Boolean)).size;
+  document.getElementById('report-stats').innerHTML = [
+    {label:'Total de Sesiones',val:sessions.length,sub:'en el mes'},
+    {label:'Víctimas Atendidas',val:uniqueVictims,sub:'víctimas'},
+    {label:'Jueces Participantes',val:uniqueJudges,sub:'jueces'},
+    {label:'Psicólogos Participantes',val:uniquePsychs,sub:'psicólogos'},
+  ].map(s=>`<div class="stat-card"><div class="stat-label">${s.label}</div><div class="stat-value">${s.val}</div><div class="stat-sub">${s.sub}</div></div>`).join('');
+
+  const firstDay = new Date(y,m,1), lastDay = new Date(y,m+1,0);
+  const weeks = []; let wStart = new Date(firstDay), wIdx = 1;
+  while (wStart <= lastDay) {
+    const wEnd = new Date(wStart); wEnd.setDate(wEnd.getDate()+6);
+    if (wEnd>lastDay) wEnd.setTime(lastDay.getTime());
+    const cnt = sessions.filter(s=>{const d=new Date(s.session_date);return d>=wStart&&d<=wEnd;}).length;
+    weeks.push({label:`Semana ${wIdx} (${wStart.toLocaleDateString('es-PY',{day:'2-digit',month:'2-digit'})} - ${wEnd.toLocaleDateString('es-PY',{day:'2-digit',month:'2-digit'})})`,count:cnt});
+    wStart = new Date(wEnd); wStart.setDate(wStart.getDate()+1); wIdx++;
+  }
+  document.getElementById('weekly-breakdown').innerHTML = weeks.map(w=>`<div class="week-row"><span style="font-size:13px;font-weight:500">${w.label}</span><span style="font-size:15px;font-weight:700">${w.count} sesiones</span></div>`).join('') || '<p class="text-muted text-sm">Sin datos</p>';
+
+  const psychMap = {};
+  sessions.forEach(s => { const n = s.psychologists?.full_name || 'Sin asignar'; psychMap[n]=(psychMap[n]||0)+1; });
+  const psychList = Object.entries(psychMap).sort((a,b)=>b[1]-a[1]);
+  document.getElementById('psych-summary').innerHTML = psychList.length
+    ? psychList.map(([n,c])=>`<div class="psych-row"><span style="font-size:13px;font-weight:500">${n}</span><span style="font-size:15px;font-weight:700">${c} sesiones</span></div>`).join('')
+    : '<p class="text-muted text-sm">No hay datos para este período</p>';
+}
+function changeMonth(delta) { reportDate.setMonth(reportDate.getMonth()+delta); renderReports(); }
+
+function generatePDF() {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  const sessions = getReportSessions();
+  const y = reportDate.getFullYear(), m = reportDate.getMonth();
+  const monthLabel = MONTHS_ES[m].charAt(0).toUpperCase()+MONTHS_ES[m].slice(1)+' de '+y;
+
+  doc.setFillColor(30,58,95); doc.rect(0,0,210,28,'F');
+  doc.setTextColor(255,255,255); doc.setFontSize(16); doc.setFont('helvetica','bold');
+  doc.text('PODER JUDICIAL - PARAGUAY', 14, 11);
+  doc.setFontSize(12); doc.setFont('helvetica','normal');
+  doc.text('Informe de Cámara Gesell', 14, 19);
+  doc.setFontSize(9);
+  doc.text(`Período: ${monthLabel}   |   Generado: ${new Date().toLocaleDateString('es-PY')} ${new Date().toLocaleTimeString('es-PY',{hour:'2-digit',minute:'2-digit'})}`, 14, 25);
+  doc.setTextColor(0,0,0);
+
+  let y2 = 36;
+  doc.setFontSize(13); doc.setFont('helvetica','bold'); doc.text('Resumen General', 14, y2);
+  const uniqueVictims = new Set(sessions.map(s=>s.victim_name||s.victim_id).filter(Boolean)).size;
+  const uniqueJudges = new Set(sessions.map(s=>s.judge_id).filter(Boolean)).size;
+  const uniquePsychs = new Set(sessions.map(s=>s.psychologist_id).filter(Boolean)).size;
+  doc.autoTable({ startY:y2+4, head:[['Indicador','Cantidad']], body:[
+    ['Total de sesiones en el mes', String(sessions.length)],
+    ['Víctimas atendidas', String(uniqueVictims)],
+    ['Jueces participantes', String(uniqueJudges)],
+    ['Psicólogos participantes', String(uniquePsychs)],
+  ], theme:'grid', headStyles:{fillColor:[59,130,246]}, styles:{fontSize:10} });
+
+  y2 = doc.lastAutoTable.finalY + 10;
+  doc.setFontSize(13); doc.setFont('helvetica','bold'); doc.text('Desglose por Semana', 14, y2);
+  const firstDay = new Date(y,m,1), lastDay = new Date(y,m+1,0);
+  const weekRows = []; let wS = new Date(firstDay), wIdx = 1;
+  while (wS <= lastDay) {
+    const wE = new Date(wS); wE.setDate(wE.getDate()+6);
+    if (wE>lastDay) wE.setTime(lastDay.getTime());
+    const cnt = sessions.filter(s=>{const d=new Date(s.session_date);return d>=wS&&d<=wE;}).length;
+    weekRows.push([`Semana ${wIdx} (${wS.toLocaleDateString('es-PY',{day:'2-digit',month:'2-digit'})} - ${wE.toLocaleDateString('es-PY',{day:'2-digit',month:'2-digit'})})`, String(cnt)]);
+    wS = new Date(wE); wS.setDate(wS.getDate()+1); wIdx++;
+  }
+  doc.autoTable({ startY:y2+4, head:[['Semana','Cantidad de Sesiones']], body:weekRows, theme:'grid', headStyles:{fillColor:[59,130,246]}, styles:{fontSize:10} });
+
+  y2 = doc.lastAutoTable.finalY + 10;
+  const psychMap = {}; sessions.forEach(s=>{const n=s.psychologists?.full_name||'Sin asignar'; psychMap[n]=(psychMap[n]||0)+1;});
+  const psychRows = Object.entries(psychMap).sort((a,b)=>b[1]-a[1]).map(([n,c])=>[n,String(c)]);
+  doc.setFontSize(13); doc.setFont('helvetica','bold'); doc.text('Psicólogos que realizaron Cámara', 14, y2);
+  doc.autoTable({ startY:y2+4, head:[['Psicólogo/a','Cantidad de Sesiones']], body:psychRows.length?psychRows:[['Sin datos','0']], theme:'grid', headStyles:{fillColor:[59,130,246]}, styles:{fontSize:10} });
+
+  y2 = doc.lastAutoTable.finalY + 10;
+  if (y2 > 240) { doc.addPage(); y2 = 20; }
+  doc.setFontSize(13); doc.setFont('helvetica','bold'); doc.text('Detalle de Sesiones', 14, y2);
+  doc.autoTable({
+    startY:y2+4,
+    head:[['Fecha','Causa','Víctima','Juez/a','Psicólogo/a','Disco','Oficio','Copias']],
+    body: sessions.map(s=>[fmtDate(s.session_date), s.case_name, s.victim_name||s.victims?.full_name||'-', s.judges?.full_name||'-', s.psychologists?.full_name||'-', String(s.disco_number), s.oficio_number||'-', s.cantidad_copias?String(s.cantidad_copias):'-']),
+    theme:'grid', headStyles:{fillColor:[59,130,246]}, styles:{fontSize:7}, columnStyles:{1:{cellWidth:40},2:{cellWidth:25}},
+  });
+
+  const pCount = doc.getNumberOfPages();
+  for (let i=1;i<=pCount;i++) {
+    doc.setPage(i); doc.setFontSize(8); doc.setFont('helvetica','normal'); doc.setTextColor(150);
+    doc.text(`Página ${i} de ${pCount}  |  Sistema Cámara Gesell — Poder Judicial Paraguay  |  Documento confidencial`, 14, 292);
+  }
+  const filename = `Informe_Gesell_${y}-${String(m+1).padStart(2,'0')}.pdf`;
+  showPdfPreview(doc, filename);
+}
+
+// ════ PDF PREVIEW (sin forzar descarga) ════
+let currentPdfDoc = null;
+let currentPdfFilename = '';
+function showPdfPreview(doc, filename) {
+  currentPdfDoc = doc;
+  currentPdfFilename = filename;
+  const blobUrl = doc.output('bloburl');
+  document.getElementById('pdf-preview-frame').src = blobUrl;
+  document.getElementById('pdf-preview-filename').textContent = filename;
+  openModal('modal-pdf-preview');
+}
+function closePdfPreview() {
+  closeModal('modal-pdf-preview');
+  document.getElementById('pdf-preview-frame').src = '';
+  currentPdfDoc = null;
+}
+function downloadPreviewedPdf() {
+  if (!currentPdfDoc) return;
+  currentPdfDoc.save(currentPdfFilename);
+  showToast('PDF descargado', 'El informe se guardó correctamente');
+}
+
+// ════════════════════════════════════════════
+// VICTIMS
+// ════════════════════════════════════════════
+async function loadVictims() {
+  const { data, error } = await sb.from('victims').select('*').order('full_name');
+  if (error) { showToast('Error al cargar víctimas', error.message, 'error'); return; }
+  cache.victims = data || [];
+  renderVictims();
+}
+function renderVictims() {
+  const tbody = document.getElementById('victims-tbody');
+  if (!cache.victims.length) { tbody.innerHTML = `<tr><td colspan="2"><div class="empty-state"><p>No hay víctimas registradas.</p></div></td></tr>`; return; }
+  tbody.innerHTML = cache.victims.map(v=>`
+    <tr class="data-row"><td class="bold">${escapeHtml(v.full_name)}</td>
+    <td><div class="td-actions">
+      <button class="btn btn-ghost btn-icon btn-sm" onclick="editVictim(${v.id})">✏️</button>
+      <button class="btn btn-ghost btn-icon btn-sm" onclick="askDelete(${v.id},'victim')">🗑️</button>
+    </div></td></tr>`).join('');
+}
+function openVictimModal(id) {
+  editingId = id || null;
+  document.getElementById('victim-modal-title').textContent = id?'Editar Víctima':'Nueva Víctima';
+  document.getElementById('f-victim-name').value = id ? (cache.victims.find(v=>v.id===id)?.full_name||'') : '';
+  openModal('modal-victim');
+}
+function editVictim(id){ openVictimModal(id); }
+async function saveVictim() {
+  const name = document.getElementById('f-victim-name').value.trim();
+  if (!name) { showToast('Error','Ingrese el nombre completo','error'); return; }
+  setBtnLoading('victim-save-btn', true, 'Guardar');
+  try {
+    const { data: { user } } = await sb.auth.getUser();
+    if (!user) throw new Error('Usuario no autenticado');
+    if (editingId) {
+      const { error } = await sb.from('victims').update({ full_name: name }).eq('id', editingId);
+      if (error) throw error;
+      showToast('Víctima actualizada','La víctima se actualizó correctamente');
+    } else {
+      const { error } = await sb.from('victims').insert({ full_name: name, user_id: user.id });
+      if (error) throw error;
+      showToast('Víctima creada','La víctima se creó correctamente');
+    }
+    closeModal('modal-victim'); await loadVictims();
+  } catch (err) { showToast('Error', err.message, 'error'); }
+  finally { setBtnLoading('victim-save-btn', false, 'Guardar'); }
+}
+
+// ════════════════════════════════════════════
+// STAFF
+// ════════════════════════════════════════════
+async function loadStaff() {
+  const table = staffTab;
+  const { data, error } = await sb.from(table).select('*').order('full_name');
+  if (error) { showToast('Error al cargar registros', error.message, 'error'); return; }
+  cache[table] = data || [];
+  renderStaff();
+}
+function renderStaff() {
+  const data = cache[staffTab] || [];
+  const tbody = document.getElementById('staff-tbody');
+  if (!data.length) { tbody.innerHTML = `<tr><td colspan="2"><div class="empty-state"><p>No hay registros.</p></div></td></tr>`; return; }
+  tbody.innerHTML = data.map(s=>`
+    <tr class="data-row"><td class="bold">${escapeHtml(s.full_name)}</td>
+    <td><div class="td-actions">
+      <button class="btn btn-ghost btn-icon btn-sm" onclick="editStaff(${s.id})">✏️</button>
+      <button class="btn btn-ghost btn-icon btn-sm" onclick="askDelete(${s.id},'staff')">🗑️</button>
+    </div></td></tr>`).join('');
+}
+function switchStaffTab(tab, btn) {
+  staffTab = tab;
+  document.querySelectorAll('#page-staff .tab-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  const labels = {judges:'Nuevo Juez/a',psychologists:'Nuevo Psicólogo/a',courts:'Nuevo Juzgado'};
+  document.getElementById('staff-add-btn').textContent = '+ '+labels[tab];
+  loadStaff();
+}
+function openStaffModal(id) {
+  editingId = id || null;
+  const labels = {judges:'Juez/a',psychologists:'Psicólogo/a',courts:'Juzgado'};
+  document.getElementById('staff-modal-title').textContent = (id?'Editar ':'Nuevo ') + labels[staffTab];
+  document.getElementById('f-staff-name').value = id ? ((cache[staffTab]||[]).find(s=>s.id===id)?.full_name||'') : '';
+  openModal('modal-staff');
+}
+function editStaff(id){ openStaffModal(id); }
+async function saveStaff() {
+  const name = document.getElementById('f-staff-name').value.trim();
+  if (!name) { showToast('Error','Ingrese el nombre','error'); return; }
+  setBtnLoading('staff-save-btn', true, 'Guardar');
+  try {
+    const { data: { user } } = await sb.auth.getUser();
+    if (!user) throw new Error('Usuario no autenticado');
+    const table = staffTab;
+    if (editingId) {
+      const { error } = await sb.from(table).update({ full_name: name }).eq('id', editingId);
+      if (error) throw error;
+      showToast('Registro actualizado','Se actualizó correctamente');
+    } else {
+      const { error } = await sb.from(table).insert({ full_name: name, user_id: user.id });
+      if (error) throw error;
+      showToast('Registro creado','Se creó correctamente');
+    }
+    closeModal('modal-staff'); await loadStaff();
+  } catch (err) { showToast('Error', err.message, 'error'); }
+  finally { setBtnLoading('staff-save-btn', false, 'Guardar'); }
+}
+
+// ════════════════════════════════════════════
+// DOCUMENTS
+// ════════════════════════════════════════════
+async function loadDocuments() {
+  const { data: { user } } = await sb.auth.getUser();
+  if (!user) return;
+  const { data, error } = await sb.from('documents').select('*').eq('user_id', user.id).order('created_at', { ascending: false });
+  if (error) { showToast('Error al cargar documentos', error.message, 'error'); return; }
+  cache.documents = data || [];
+  renderDocuments();
+}
+function renderDocuments() {
+  const tbody = document.getElementById('docs-tbody');
+  if (!cache.documents.length) { tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><p>No hay documentos subidos</p></div></td></tr>`; return; }
+  tbody.innerHTML = cache.documents.map(d=>`
+    <tr class="data-row">
+      <td>${d.file_type?.includes('pdf')?'📄':d.file_type?.includes('image')?'🖼️':'📎'}</td>
+      <td class="bold">${escapeHtml(d.file_name)}</td>
+      <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escapeHtml(d.description||'-')}</td>
+      <td>${fmtSize(d.file_size)}</td>
+      <td>${fmtDateOnly(d.created_at)}</td>
+      <td><div class="td-actions">
+        <button class="btn btn-ghost btn-icon btn-sm" onclick="downloadDoc('${d.id}')" title="Descargar">⬇️</button>
+        ${isAdmin?`<button class="btn btn-ghost btn-icon btn-sm" onclick="askDelete('${d.id}','document')" title="Eliminar">🗑️</button>`:''}
+      </div></td>
+    </tr>`).join('');
+}
+async function uploadDocument() {
+  const file = document.getElementById('doc-file').files[0];
+  const desc = document.getElementById('doc-desc').value;
+  if (!file) { showToast('Error','Seleccione un archivo','error'); return; }
+  setBtnLoading('upload-btn', true, 'Subir Documento');
+  try {
+    const { data: { user } } = await sb.auth.getUser();
+    if (!user) throw new Error('Usuario no autenticado');
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${Math.random()}.${fileExt}`;
+    const filePath = `${user.id}/${fileName}`;
+    const { error: uploadError } = await sb.storage.from('judicial-documents').upload(filePath, file);
+    if (uploadError) throw uploadError;
+    const { error: dbError } = await sb.from('documents').insert({
+      user_id: user.id, file_name: file.name, file_path: filePath, file_size: file.size, file_type: file.type, description: desc || null,
+    });
+    if (dbError) throw dbError;
+    document.getElementById('doc-file').value=''; document.getElementById('doc-desc').value='';
+    showToast('Archivo subido','El documento se ha subido correctamente');
+    await loadDocuments();
+  } catch (err) { showToast('Error al subir archivo', err.message, 'error'); }
+  finally { setBtnLoading('upload-btn', false, 'Subir Documento'); }
+}
+async function downloadDoc(id) {
+  const d = cache.documents.find(x=>x.id===id);
+  if (!d) return;
+  try {
+    const { data, error } = await sb.storage.from('judicial-documents').download(d.file_path);
+    if (error) throw error;
+    const url = URL.createObjectURL(data);
+    const a = document.createElement('a'); a.href = url; a.download = d.file_name;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  } catch (err) { showToast('Error al descargar', err.message, 'error'); }
+}
+
+// ════════════════════════════════════════════
+// USERS
+// ════════════════════════════════════════════
+async function loadUsers() {
+  const [{data:profiles,error:e1}, {data:roles,error:e2}, {data:perms,error:e3}] = await Promise.all([
+    sb.from('profiles').select('id, full_name, created_at').order('created_at',{ascending:false}),
+    sb.from('user_roles').select('user_id, role'),
+    sb.from('user_module_permissions').select('user_id, module'),
+  ]);
+  if (e1||e2||e3) { showToast('Error al cargar usuarios', (e1||e2||e3).message, 'error'); return; }
+  const tbody = document.getElementById('users-tbody');
+  tbody.innerHTML = (profiles||[]).map(p => {
+    const role = roles?.find(r=>r.user_id===p.id)?.role || 'user';
+    const mods = (perms||[]).filter(x=>x.user_id===p.id).map(x=>x.module);
+    const checks = ALL_MODULES.map(m => `<td style="text-align:center"><input type="checkbox" ${role==='admin'||mods.includes(m)?'checked':''} ${role==='admin'?'disabled':''} onchange="toggleModule('${p.id}','${m}',this.checked)"></td>`).join('');
+    return `<tr class="data-row">
+      <td class="bold">${escapeHtml(p.full_name||'(sin nombre)')}</td>
+      <td>
+        <select class="form-select" style="padding:5px 26px 5px 8px;font-size:12px" onchange="changeRole('${p.id}',this.value)">
+          <option value="user" ${role==='user'?'selected':''}>Usuario</option>
+          <option value="admin" ${role==='admin'?'selected':''}>Administrador</option>
+        </select>
+      </td>
+      ${checks}
+    </tr>`;
+  }).join('');
+}
+async function changeRole(userId, newRole) {
+  try {
+    const { data: existing } = await sb.from('user_roles').select('*').eq('user_id', userId).maybeSingle();
+    if (newRole === 'user' && existing) {
+      const { error } = await sb.from('user_roles').delete().eq('user_id', userId);
+      if (error) throw error;
+    } else if (newRole === 'admin') {
+      if (existing) { const { error } = await sb.from('user_roles').update({ role:newRole }).eq('user_id', userId); if(error) throw error; }
+      else { const { error } = await sb.from('user_roles').insert({ user_id:userId, role:newRole }); if(error) throw error; }
+    }
+    showToast('Rol actualizado', `El rol se ha cambiado a ${newRole==='admin'?'Administrador':'Usuario'}`);
+    await loadUsers();
+  } catch (err) { showToast('Error al cambiar rol', err.message, 'error'); }
+}
+async function toggleModule(userId, moduleKey, enabled) {
+  try {
+    if (enabled) { const { error } = await sb.from('user_module_permissions').insert({ user_id:userId, module:moduleKey }); if(error) throw error; }
+    else { const { error } = await sb.from('user_module_permissions').delete().eq('user_id',userId).eq('module',moduleKey); if(error) throw error; }
+    showToast('Permisos actualizados');
+  } catch (err) { showToast('Error al actualizar permisos', err.message, 'error'); }
+}
+
+// ════════════════════════════════════════════
+// DELETE
+// ════════════════════════════════════════════
+function askDelete(id, type) { deleteCtx = {id,type}; openModal('modal-confirm'); }
+async function confirmDelete() {
+  if (!deleteCtx) return;
+  setBtnLoading('confirm-del-btn', true, 'Eliminar');
+  const { id, type } = deleteCtx;
+  try {
+    if (type === 'session') { const { error } = await sb.from('sessions').delete().eq('id', id); if(error) throw error; await loadSessions(); }
+    if (type === 'victim') { const { error } = await sb.from('victims').delete().eq('id', id); if(error) throw error; await loadVictims(); }
+    if (type === 'staff') { const { error } = await sb.from(staffTab).delete().eq('id', id); if(error) throw error; await loadStaff(); }
+    if (type === 'document') {
+      const d = cache.documents.find(x=>x.id===id);
+      if (d) await sb.storage.from('judicial-documents').remove([d.file_path]);
+      const { error } = await sb.from('documents').delete().eq('id', id); if(error) throw error;
+      await loadDocuments();
+    }
+    showToast('Eliminado','El registro se eliminó correctamente');
+    closeModal('modal-confirm');
+  } catch (err) { showToast('Error', err.message, 'error'); }
+  finally { setBtnLoading('confirm-del-btn', false, 'Eliminar'); deleteCtx=null; }
+}
+
+// ════════════════════════════════════════════
+// IMPORT EXCEL
+// ════════════════════════════════════════════
+function openImport(target) { importTarget = target; document.getElementById('import-file').value=''; openModal('modal-import'); }
+async function doImport() {
+  const file = document.getElementById('import-file').files[0];
+  if (!file) { showToast('Error','Seleccione un archivo','error'); return; }
+  setBtnLoading('import-btn', true, 'Importar');
+  try {
+    const { data: { user } } = await sb.auth.getUser();
+    if (!user) throw new Error('Usuario no autenticado');
+    const buf = await file.arrayBuffer();
+    const wb = XLSX.read(buf, {type:'array'});
+    const ws = wb.Sheets[wb.SheetNames[0]];
+    const rows = XLSX.utils.sheet_to_json(ws, {defval:''});
+    let imported = 0, failed = 0;
+
+    if (importTarget === 'sessions') {
+      for (const r of rows) {
+        const payload = {
+          disco_number: parseInt(r['disco_number']||r['Disco'])||0,
+          session_date: (r['session_date']||r['Fecha']) ? new Date(r['session_date']||r['Fecha']).toISOString() : new Date().toISOString(),
+          case_name: r['case_name']||r['Causa']||'',
+          defendant_name: r['defendant_name']||'N/A',
+          victim_name: r['victim_name']||r['Víctima']||null,
+          oficio_number: r['oficio_number']||r['Oficio']||null,
+          cantidad_copias: parseInt(r['cantidad_copias']||r['Copias'])||null,
+          copia_entregada: false,
+          user_id: user.id,
+        };
+        const { error } = await sb.from('sessions').insert(payload);
+        if (error) failed++; else imported++;
+      }
+      await loadSessions();
+    } else if (importTarget === 'victims') {
+      for (const r of rows) {
+        const name = r['full_name']||r['Nombre']||r['nombre']||'';
+        if (!name) { failed++; continue; }
+        const { error } = await sb.from('victims').insert({ full_name:name, user_id:user.id });
+        if (error) failed++; else imported++;
+      }
+      await loadVictims();
+    } else if (importTarget === 'staff') {
+      for (const r of rows) {
+        const name = r['full_name']||r['Nombre']||r['nombre']||'';
+        if (!name) { failed++; continue; }
+        const { error } = await sb.from(staffTab).insert({ full_name:name, user_id:user.id });
+        if (error) failed++; else imported++;
+      }
+      await loadStaff();
+    }
+    closeModal('modal-import');
+    showToast('Importación completa', `${imported} registros importados${failed?`, ${failed} con error`:''}`);
+  } catch (err) {
+    showToast('Error de importación', err.message, 'error');
+  } finally {
+    setBtnLoading('import-btn', false, 'Importar');
+  }
+}
+
+// ════════════════════════════════════════════
+// BOOT
+// ════════════════════════════════════════════
+(async function boot() {
+  document.getElementById('auth-screen').style.display = 'flex';
+  document.getElementById('app-screen').style.display = 'none';
+  const { data: { session } } = await sb.auth.getSession();
+  if (session) { await initSession(); }
+})();
+</script>
+</body>
 </html>
