@@ -162,6 +162,16 @@ tr.data-row:hover td{background:#F8FAFC}
 .mt-4{margin-top:16px}
 .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 .spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite}
+.doc-folder{border:1px solid var(--border);border-radius:var(--radius);margin-bottom:10px;overflow:hidden}
+.doc-folder-head{display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--bg);cursor:pointer;user-select:none}
+.doc-folder-head:hover{background:#EEF2F7}
+.doc-folder-icon{font-size:16px;transition:transform .15s}
+.doc-folder-head.open .doc-folder-icon{transform:rotate(90deg)}
+.doc-folder-name{font-size:13px;font-weight:600;color:var(--text);flex:1;text-transform:capitalize}
+.doc-folder-count{font-size:11px;color:var(--muted);font-weight:500}
+.doc-folder-body{display:none}
+.doc-folder-body.open{display:block}
+.doc-folder-body table{width:100%}
 @keyframes spin{to{transform:rotate(360deg)}}
 </style>
 </head>
@@ -384,11 +394,7 @@ tr.data-row:hover td{background:#F8FAFC}
         </div>
         <div class="card">
           <div class="card-header"><div class="card-title">📋 Mis Documentos</div></div>
-          <div class="card-content" style="padding:0">
-            <div class="table-wrap" style="border:none;border-radius:0">
-              <table><thead><tr><th>Tipo</th><th>Nombre</th><th>Descripción</th><th>Tamaño</th><th>Fecha</th><th style="text-align:right">Acciones</th></tr></thead><tbody id="docs-tbody"></tbody></table>
-            </div>
-          </div>
+          <div class="card-content" style="padding:12px 16px" id="docs-folders"></div>
         </div>
       </div>
 
@@ -1057,20 +1063,61 @@ async function loadDocuments() {
   renderDocuments();
 }
 function renderDocuments() {
-  const tbody = document.getElementById('docs-tbody');
-  if (!cache.documents.length) { tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><p>No hay documentos subidos</p></div></td></tr>`; return; }
-  tbody.innerHTML = cache.documents.map(d=>`
-    <tr class="data-row">
-      <td>${d.file_type?.includes('pdf')?'📄':d.file_type?.includes('image')?'🖼️':'📎'}</td>
-      <td class="bold">${escapeHtml(d.file_name)}</td>
-      <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escapeHtml(d.description||'-')}</td>
-      <td>${fmtSize(d.file_size)}</td>
-      <td>${fmtDateOnly(d.created_at)}</td>
-      <td><div class="td-actions">
-        <button class="btn btn-ghost btn-icon btn-sm" onclick="downloadDoc('${d.id}')" title="Descargar">⬇️</button>
-        ${isAdmin?`<button class="btn btn-ghost btn-icon btn-sm" onclick="askDelete('${d.id}','document')" title="Eliminar">🗑️</button>`:''}
-      </div></td>
-    </tr>`).join('');
+  const container = document.getElementById('docs-folders');
+  if (!cache.documents.length) {
+    container.innerHTML = `<div class="empty-state"><p>No hay documentos subidos</p></div>`;
+    return;
+  }
+
+  // Agrupar por mes (según fecha de creación)
+  const groups = {};
+  cache.documents.forEach(d => {
+    const date = new Date(d.created_at);
+    const key = `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}`;
+    if (!groups[key]) groups[key] = [];
+    groups[key].push(d);
+  });
+
+  const sortedKeys = Object.keys(groups).sort((a,b) => b.localeCompare(a));
+  const currentKey = sortedKeys[0]; // mes más reciente, abierto por defecto
+
+  container.innerHTML = sortedKeys.map(key => {
+    const [y, m] = key.split('-');
+    const label = `${MONTHS_ES[parseInt(m)-1]} de ${y}`;
+    const docs = groups[key];
+    const isOpen = key === currentKey;
+    const rows = docs.map(d => `
+      <tr class="data-row">
+        <td style="width:36px">${d.file_type?.includes('pdf')?'📄':d.file_type?.includes('image')?'🖼️':'📎'}</td>
+        <td class="bold">${escapeHtml(d.file_name)}</td>
+        <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escapeHtml(d.description||'-')}</td>
+        <td>${fmtSize(d.file_size)}</td>
+        <td>${fmtDateOnly(d.created_at)}</td>
+        <td><div class="td-actions">
+          <button class="btn btn-ghost btn-icon btn-sm" onclick="downloadDoc('${d.id}')" title="Descargar">⬇️</button>
+          ${isAdmin?`<button class="btn btn-ghost btn-icon btn-sm" onclick="askDelete('${d.id}','document')" title="Eliminar">🗑️</button>`:''}
+        </div></td>
+      </tr>`).join('');
+    return `
+      <div class="doc-folder">
+        <div class="doc-folder-head${isOpen?' open':''}" onclick="toggleDocFolder(this)">
+          <span class="doc-folder-icon">📁</span>
+          <span class="doc-folder-name">${label}</span>
+          <span class="doc-folder-count">${docs.length} documento${docs.length!==1?'s':''}</span>
+          <span style="color:var(--muted);font-size:11px">▸</span>
+        </div>
+        <div class="doc-folder-body${isOpen?' open':''}">
+          <table>
+            <thead><tr><th></th><th>Nombre</th><th>Descripción</th><th>Tamaño</th><th>Fecha</th><th style="text-align:right">Acciones</th></tr></thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>
+      </div>`;
+  }).join('');
+}
+function toggleDocFolder(headEl) {
+  headEl.classList.toggle('open');
+  headEl.nextElementSibling.classList.toggle('open');
 }
 async function uploadDocument() {
   const file = document.getElementById('doc-file').files[0];
