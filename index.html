@@ -220,14 +220,14 @@ tr.data-row:hover td{background:#F8FAFC}
       <div class="form-group">
         <div class="input-wrap">
           <span class="input-icon">👤</span>
-          <input id="login-ci" class="form-input with-icon" type="text" placeholder="Usuario" maxlength="7" oninput="this.value=this.value.replace(/\D/g,'').slice(0,7)">
+          <input id="login-ci" class="form-input with-icon" type="text" placeholder="Usuario" maxlength="7" oninput="this.value=this.value.replace(/\D/g,'').slice(0,7)" onkeydown="if(event.key==='Enter')doLogin()">
         </div>
         <div class="form-hint">Cédula — 7 dígitos sin puntos ni guiones</div>
       </div>
       <div class="form-group">
         <div class="input-wrap">
           <span class="input-icon">🔑</span>
-          <input id="login-pass" class="form-input with-icon" type="password" placeholder="Contraseña" style="padding-right:36px">
+          <input id="login-pass" class="form-input with-icon" type="password" placeholder="Contraseña" style="padding-right:36px" onkeydown="if(event.key==='Enter')doLogin()">
           <button class="input-eye" type="button" onclick="togglePass('login-pass')">👁</button>
         </div>
       </div>
@@ -238,19 +238,19 @@ tr.data-row:hover td{background:#F8FAFC}
       <div class="auth-signin-label">Registrarse:</div>
       <div class="form-group">
         <label class="form-label">Nombre Completo</label>
-        <input id="reg-name" class="form-input" type="text" placeholder="Juan Pérez">
+        <input id="reg-name" class="form-input" type="text" placeholder="Juan Pérez" onkeydown="if(event.key==='Enter')doRegister()">
       </div>
       <div class="form-group">
         <div class="input-wrap">
           <span class="input-icon">👤</span>
-          <input id="reg-ci" class="form-input with-icon" type="text" placeholder="Usuario" maxlength="7" oninput="this.value=this.value.replace(/\D/g,'').slice(0,7)">
+          <input id="reg-ci" class="form-input with-icon" type="text" placeholder="Usuario" maxlength="7" oninput="this.value=this.value.replace(/\D/g,'').slice(0,7)" onkeydown="if(event.key==='Enter')doRegister()">
         </div>
         <div class="form-hint">Cédula — 7 dígitos sin puntos ni guiones</div>
       </div>
       <div class="form-group">
         <div class="input-wrap">
           <span class="input-icon">🔑</span>
-          <input id="reg-pass" class="form-input with-icon" type="password" placeholder="Contraseña" style="padding-right:36px">
+          <input id="reg-pass" class="form-input with-icon" type="password" placeholder="Contraseña" style="padding-right:36px" onkeydown="if(event.key==='Enter')doRegister()">
           <button class="input-eye" type="button" onclick="togglePass('reg-pass')">👁</button>
         </div>
       </div>
