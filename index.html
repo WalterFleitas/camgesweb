@@ -409,7 +409,7 @@ tr.data-row:hover td{background:#F8FAFC}
           </div>
         </div>
         <div class="card">
-          <div class="card-header"><div class="card-title">📋 Mis Documentos</div></div>
+          <div class="card-header"><div class="card-title">📋 Documentos del Sistema</div></div>
           <div class="card-content" style="padding:12px 16px" id="docs-folders"></div>
         </div>
       </div>
@@ -1073,7 +1073,7 @@ async function saveStaff() {
 async function loadDocuments() {
   const { data: { user } } = await sb.auth.getUser();
   if (!user) return;
-  const { data, error } = await sb.from('documents').select('*').eq('user_id', user.id).order('created_at', { ascending: false });
+  const { data, error } = await sb.from('documents').select('*').order('created_at', { ascending: false });
   if (error) { showToast('Error al cargar documentos', error.message, 'error'); return; }
   cache.documents = data || [];
   renderDocuments();
