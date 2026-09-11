@@ -399,7 +399,7 @@ tr.data-row:hover td{background:#F8FAFC}
           <div class="card-header"><div class="card-title">Usuarios del Sistema</div></div>
           <div class="card-content" style="padding:0">
             <div class="table-wrap" style="border:none;border-radius:0">
-              <table><thead><tr><th>Nombre</th><th>Rol</th><th>Sesiones</th><th>Búsqueda</th><th>Informes</th><th>Personal</th><th>Documentos</th></tr></thead><tbody id="users-tbody"></tbody></table>
+              <table><thead><tr><th>Nombre</th><th>Rol</th><th>Sesiones</th><th>Búsqueda</th><th>Informes</th><th>Personal</th><th>Documentos</th><th style="text-align:right">Acciones</th></tr></thead><tbody id="users-tbody"></tbody></table>
             </div>
           </div>
         </div>
@@ -470,6 +470,30 @@ tr.data-row:hover td{background:#F8FAFC}
     <div class="modal-footer">
       <button class="btn btn-outline" onclick="closePdfPreview()">Cerrar</button>
       <button class="btn btn-primary" id="pdf-download-btn" onclick="downloadPreviewedPdf()">⬇️ Descargar PDF</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: RESET PASSWORD -->
+<div class="overlay" id="modal-reset-password">
+  <div class="modal" style="width:380px">
+    <div class="modal-header">
+      <div class="modal-header-info"><div class="modal-title">Restablecer contraseña</div><div class="modal-desc" id="reset-pw-username"></div></div>
+      <button class="close-btn" onclick="closeModal('modal-reset-password')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group-m">
+        <label class="form-label">Nueva contraseña</label>
+        <div class="input-wrap">
+          <input id="f-reset-password" class="form-input" type="password" placeholder="Mínimo 6 caracteres" style="padding-right:36px">
+          <button class="input-eye" type="button" onclick="togglePass('f-reset-password')">👁</button>
+        </div>
+        <div class="form-hint">El usuario podrá iniciar sesión de inmediato con esta contraseña.</div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-reset-password')">Cancelar</button>
+      <button class="btn btn-primary" id="reset-pw-btn" onclick="submitResetPassword()">Restablecer</button>
     </div>
   </div>
 </div>
@@ -1108,6 +1132,9 @@ async function loadUsers() {
         </select>
       </td>
       ${checks}
+      <td><div class="td-actions">
+        <button class="btn btn-ghost btn-icon btn-sm" onclick="openResetPasswordModal('${p.id}', '${escapeHtml(p.full_name||'este usuario').replace(/'/g,"\\'")}')" title="Restablecer contraseña">🔑</button>
+      </div></td>
     </tr>`;
   }).join('');
 }
@@ -1124,6 +1151,41 @@ async function changeRole(userId, newRole) {
     showToast('Rol actualizado', `El rol se ha cambiado a ${newRole==='admin'?'Administrador':'Usuario'}`);
     await loadUsers();
   } catch (err) { showToast('Error al cambiar rol', err.message, 'error'); }
+}
+let resetPasswordTargetId = null;
+function openResetPasswordModal(userId, userName) {
+  resetPasswordTargetId = userId;
+  document.getElementById('reset-pw-username').textContent = `Usuario: ${userName}`;
+  document.getElementById('f-reset-password').value = '';
+  openModal('modal-reset-password');
+}
+async function submitResetPassword() {
+  const newPassword = document.getElementById('f-reset-password').value;
+  if (!newPassword || newPassword.length < 6) {
+    showToast('Error', 'La contraseña debe tener al menos 6 caracteres', 'error');
+    return;
+  }
+  setBtnLoading('reset-pw-btn', true, 'Restablecer');
+  try {
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) throw new Error('Sesión no válida');
+    const res = await fetch(`${SUPABASE_URL}/functions/v1/reset-user-password`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${session.access_token}`,
+      },
+      body: JSON.stringify({ target_user_id: resetPasswordTargetId, new_password: newPassword }),
+    });
+    const result = await res.json();
+    if (!res.ok) throw new Error(result.error || 'No se pudo restablecer la contraseña');
+    showToast('Contraseña restablecida', 'El usuario ya puede iniciar sesión con la nueva contraseña');
+    closeModal('modal-reset-password');
+  } catch (err) {
+    showToast('Error al restablecer', err.message, 'error');
+  } finally {
+    setBtnLoading('reset-pw-btn', false, 'Restablecer');
+  }
 }
 async function toggleModule(userId, moduleKey, enabled) {
   try {
