@@ -551,6 +551,8 @@ let deleteCtx = null;
 let staffTab = 'judges';
 let reportDate = new Date();
 let importTarget = '';
+let currentPage = 'sessions';
+let realtimeInitialized = false;
 
 // ════ UI HELPERS ════
 function showToast(title, desc='', type='success') {
@@ -673,12 +675,52 @@ async function initSession() {
 
   const firstBtn = document.querySelector('#sidebar-nav .nav-item[data-module]:not([style*="display: none"])');
   if (firstBtn) navigate(firstBtn.dataset.module, firstBtn);
+
+  setupRealtime();
+}
+
+// ════════════════════════════════════════════
+// TIEMPO REAL — refleja cambios de otros usuarios sin recargar
+// ════════════════════════════════════════════
+function setupRealtime() {
+  if (realtimeInitialized) return;
+  realtimeInitialized = true;
+
+  sb.channel('sessions-live')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'sessions' }, async () => {
+      if (['sessions','search','reports'].includes(currentPage)) {
+        await loadSessions();
+        if (currentPage === 'search') doSearch();
+        if (currentPage === 'reports') renderReports();
+      }
+    })
+    .subscribe();
+
+  sb.channel('documents-live')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'documents' }, async () => {
+      if (currentPage === 'documents') await loadDocuments();
+    })
+    .subscribe();
+
+  sb.channel('staff-live')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'judges' }, async () => {
+      if (currentPage === 'staff' && staffTab === 'judges') await loadStaff();
+    })
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'psychologists' }, async () => {
+      if (currentPage === 'staff' && staffTab === 'psychologists') await loadStaff();
+    })
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'courts' }, async () => {
+      if (currentPage === 'staff' && staffTab === 'courts') await loadStaff();
+    })
+    .subscribe();
 }
 
 sb.auth.onAuthStateChange((event) => {
   if (event === 'SIGNED_OUT') {
     document.getElementById('auth-screen').style.display = 'flex';
     document.getElementById('app-screen').style.display = 'none';
+    realtimeInitialized = false;
+    sb.removeAllChannels();
   }
 });
 
@@ -686,6 +728,7 @@ sb.auth.onAuthStateChange((event) => {
 // NAVIGATION
 // ════════════════════════════════════════════
 async function navigate(page, btn) {
+  currentPage = page;
   document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
   if (btn) btn.classList.add('active');
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
