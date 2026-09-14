@@ -190,6 +190,10 @@ tr.data-row:hover td{background:#F8FAFC}
 .doc-folder-body{display:none}
 .doc-folder-body.open{display:block}
 .doc-folder-body table{width:100%}
+.upload-options{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+.upload-option-btn{flex:1;min-width:160px;justify-content:center}
+.doc-selected-preview{font-size:12px;color:var(--muted);padding:8px 10px;background:var(--bg);border:1px dashed var(--border);border-radius:var(--radius)}
+.doc-selected-preview.has-file{color:var(--text);font-weight:500;border-style:solid;border-color:var(--primary-border);background:var(--primary-light)}
 @keyframes spin{to{transform:rotate(360deg)}}
 /* ═══════════════════════════════════════════════════
    RESPONSIVE — hamburguesa, sidebar tipo cajón, tablas
@@ -449,7 +453,21 @@ tr.data-row:hover td{background:#F8FAFC}
         <div class="card mb-4" id="upload-card" style="display:none">
           <div class="card-header"><div class="card-title">📤 Subir Documento</div></div>
           <div class="card-content">
-            <div class="form-group-m"><label class="form-label">📄 Archivo (PDF, Word, imágenes)</label><input id="doc-file" class="form-input" type="file" accept="image/*,.pdf,.doc,.docx"></div>
+            <div class="form-group-m">
+              <label class="form-label">Archivo</label>
+              <div class="upload-options">
+                <button type="button" class="btn btn-outline upload-option-btn" onclick="document.getElementById('doc-file').click()">
+                  📁 Elegir archivo
+                </button>
+                <button type="button" class="btn btn-outline upload-option-btn" onclick="document.getElementById('doc-camera').click()">
+                  📷 Escanear con cámara
+                </button>
+              </div>
+              <input id="doc-file" style="display:none" type="file" accept="image/*,.pdf,.doc,.docx" onchange="onDocFileSelected(this.files[0])">
+              <input id="doc-camera" style="display:none" type="file" accept="image/*" capture="environment" onchange="onDocFileSelected(this.files[0])">
+              <div class="doc-selected-preview" id="doc-selected-preview">Ningún archivo seleccionado</div>
+              <div class="form-hint">En celular, "Escanear con cámara" abre la cámara directo para fotografiar el oficio.</div>
+            </div>
             <div class="form-group-m"><label class="form-label">Descripción (opcional)</label><textarea id="doc-desc" class="form-textarea" placeholder="Descripción del documento..."></textarea></div>
             <button class="btn btn-primary btn-sm" id="upload-btn" onclick="uploadDocument()">Subir Documento</button>
           </div>
@@ -1249,10 +1267,23 @@ function toggleDocFolder(headEl) {
   headEl.classList.toggle('open');
   headEl.nextElementSibling.classList.toggle('open');
 }
+let selectedDocFile = null;
+function onDocFileSelected(file) {
+  selectedDocFile = file || null;
+  const preview = document.getElementById('doc-selected-preview');
+  if (selectedDocFile) {
+    const sizeKb = (selectedDocFile.size/1024).toFixed(0);
+    preview.textContent = `✅ ${selectedDocFile.name} (${sizeKb} KB)`;
+    preview.classList.add('has-file');
+  } else {
+    preview.textContent = 'Ningún archivo seleccionado';
+    preview.classList.remove('has-file');
+  }
+}
 async function uploadDocument() {
-  const file = document.getElementById('doc-file').files[0];
+  const file = selectedDocFile;
   const desc = document.getElementById('doc-desc').value;
-  if (!file) { showToast('Error','Seleccione un archivo','error'); return; }
+  if (!file) { showToast('Error','Seleccione un archivo o escanee un documento','error'); return; }
   setBtnLoading('upload-btn', true, 'Subir Documento');
   try {
     const { data: { user } } = await sb.auth.getUser();
@@ -1266,7 +1297,10 @@ async function uploadDocument() {
       user_id: user.id, file_name: file.name, file_path: filePath, file_size: file.size, file_type: file.type, description: desc || null,
     });
     if (dbError) throw dbError;
-    document.getElementById('doc-file').value=''; document.getElementById('doc-desc').value='';
+    document.getElementById('doc-file').value='';
+    document.getElementById('doc-camera').value='';
+    document.getElementById('doc-desc').value='';
+    onDocFileSelected(null);
     showToast('Archivo subido','El documento se ha subido correctamente');
     await loadDocuments();
   } catch (err) { showToast('Error al subir archivo', err.message, 'error'); }
