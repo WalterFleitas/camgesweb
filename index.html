@@ -505,7 +505,7 @@ tr.data-row:hover td{background:#F8FAFC}
     </div>
     <div class="modal-body">
       <div class="form-group-m"><label class="form-label">N° de Disco</label><input id="f-disco" class="form-input" type="number" placeholder="8"></div>
-      <div class="form-group-m"><label class="form-label">Fecha y Hora</label><input id="f-fecha" class="form-input" type="datetime-local"></div>
+      <div class="form-group-m"><label class="form-label">Fecha</label><input id="f-fecha" class="form-input" type="date"></div>
       <div class="form-group-m"><label class="form-label">Nombre de la Causa</label><input id="f-causa" class="form-input" placeholder="Ej: Causa 123/2025 - Caso XXX"></div>
       <div class="form-group-m"><label class="form-label">Juzgado a Cargo</label><select id="f-juzgado" class="form-select"><option value="">Seleccione un juzgado</option></select></div>
       <div class="form-group-m"><label class="form-label">Víctima</label><input id="f-victima" class="form-input" placeholder="Nombre de la víctima"></div>
@@ -917,7 +917,7 @@ function renderSessions(sessions) {
   tbody.innerHTML = sessions.map(s => `
     <tr class="data-row">
       <td class="bold">${s.disco_number}</td>
-      <td>${fmtDate(s.session_date)}</td>
+      <td>${fmtDateOnly(s.session_date)}</td>
       <td class="bold" style="max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml(s.case_name)}</td>
       <td style="max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml(s.courts?.full_name || s.defendant_name || '-')}</td>
       <td>${escapeHtml(s.victim_name || s.victims?.full_name || '-')}</td>
@@ -939,7 +939,7 @@ async function openSessionModal(id) {
   if (id) {
     const s = cache.sessions.find(x=>x.id===id);
     document.getElementById('f-disco').value = s.disco_number;
-    document.getElementById('f-fecha').value = new Date(s.session_date).toISOString().slice(0,16);
+    document.getElementById('f-fecha').value = new Date(s.session_date).toISOString().slice(0,10);
     document.getElementById('f-causa').value = s.case_name;
     document.getElementById('f-juzgado').value = s.court_id || '';
     document.getElementById('f-victima').value = s.victim_name || s.victims?.full_name || '';
@@ -1016,7 +1016,7 @@ function doSearch() {
   if (!results.length) { tbody.innerHTML = `<tr><td colspan="9"><div class="empty-state"><p>No se encontraron sesiones con los filtros aplicados.</p></div></td></tr>`; return; }
   tbody.innerHTML = results.map(s=>`
     <tr class="data-row">
-      <td class="bold">${s.disco_number}</td><td>${fmtDate(s.session_date)}</td><td class="bold">${escapeHtml(s.case_name)}</td>
+      <td class="bold">${s.disco_number}</td><td>${fmtDateOnly(s.session_date)}</td><td class="bold">${escapeHtml(s.case_name)}</td>
       <td>${escapeHtml(s.courts?.full_name||'-')}</td><td>${escapeHtml(s.victim_name||s.victims?.full_name||'-')}</td>
       <td>${escapeHtml(s.oficio_number||'-')}</td><td><span class="badge ${s.copia_entregada?'badge-green':'badge-gray'}">${s.copia_entregada?'Sí':'No'}</span></td>
       <td>${escapeHtml(s.judges?.full_name||'-')}</td><td>${escapeHtml(s.psychologists?.full_name||'-')}</td>
@@ -1105,7 +1105,7 @@ function generatePDF() {
   doc.autoTable({
     startY:y2+4,
     head:[['Fecha','Causa','Víctima','Juez/a','Psicólogo/a','Disco','Oficio','Copias']],
-    body: sessions.map(s=>[fmtDate(s.session_date), s.case_name, s.victim_name||s.victims?.full_name||'-', s.judges?.full_name||'-', s.psychologists?.full_name||'-', String(s.disco_number), s.oficio_number||'-', s.cantidad_copias?String(s.cantidad_copias):'-']),
+    body: sessions.map(s=>[fmtDateOnly(s.session_date), s.case_name, s.victim_name||s.victims?.full_name||'-', s.judges?.full_name||'-', s.psychologists?.full_name||'-', String(s.disco_number), s.oficio_number||'-', s.cantidad_copias?String(s.cantidad_copias):'-']),
     theme:'grid', headStyles:{fillColor:[59,130,246]}, styles:{fontSize:7}, columnStyles:{1:{cellWidth:40},2:{cellWidth:25}},
   });
 
