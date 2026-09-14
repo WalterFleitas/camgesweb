@@ -506,10 +506,10 @@ tr.data-row:hover td{background:#F8FAFC}
     <div class="modal-body">
       <div class="form-group-m"><label class="form-label">N° de Disco</label><input id="f-disco" class="form-input" type="number" placeholder="8"></div>
       <div class="form-group-m"><label class="form-label">Fecha</label><input id="f-fecha" class="form-input" type="date"></div>
-      <div class="form-group-m"><label class="form-label">Nombre de la Causa</label><input id="f-causa" class="form-input" placeholder="Ej: Causa 123/2025 - Caso XXX"></div>
+      <div class="form-group-m"><label class="form-label">Nombre de la Causa</label><input id="f-causa" class="form-input" placeholder="Ej: Causa 123/2025 - Caso XXX" style="text-transform:uppercase"></div>
       <div class="form-group-m"><label class="form-label">Juzgado a Cargo</label><select id="f-juzgado" class="form-select"><option value="">Seleccione un juzgado</option></select></div>
-      <div class="form-group-m"><label class="form-label">Víctima</label><input id="f-victima" class="form-input" placeholder="Nombre de la víctima"></div>
-      <div class="form-group-m"><label class="form-label">N° de Oficio</label><input id="f-oficio" class="form-input" placeholder="Ej: 190/2024"></div>
+      <div class="form-group-m"><label class="form-label">Víctima</label><input id="f-victima" class="form-input" placeholder="Nombre de la víctima" style="text-transform:uppercase"></div>
+      <div class="form-group-m"><label class="form-label">N° de Oficio</label><input id="f-oficio" class="form-input" placeholder="Ej: 190/2024" style="text-transform:uppercase"></div>
       <div class="form-group-m"><label class="form-label">Cantidad de Copias</label><input id="f-copias" class="form-input" type="number" placeholder="1"></div>
       <div class="form-group-m"><label class="form-label">Juez/a Presente</label><select id="f-juez" class="form-select"><option value="">Seleccione un juez/a</option></select></div>
       <div class="form-group-m"><label class="form-label">Psicólogo/a a Cargo</label><select id="f-psicologo" class="form-select"><option value="">Seleccione un psicólogo/a</option></select></div>
@@ -526,7 +526,7 @@ tr.data-row:hover td{background:#F8FAFC}
 <div class="overlay" id="modal-staff">
   <div class="modal" style="width:380px">
     <div class="modal-header"><div class="modal-header-info"><div class="modal-title" id="staff-modal-title">Nuevo Juez/a</div></div><button class="close-btn" onclick="closeModal('modal-staff')">✕</button></div>
-    <div class="modal-body"><div class="form-group-m"><label class="form-label">Nombre Completo</label><input id="f-staff-name" class="form-input" placeholder="Nombre completo"></div></div>
+    <div class="modal-body"><div class="form-group-m"><label class="form-label">Nombre Completo</label><input id="f-staff-name" class="form-input" placeholder="Nombre completo" style="text-transform:uppercase"></div></div>
     <div class="modal-footer"><button class="btn btn-outline" onclick="closeModal('modal-staff')">Cancelar</button><button class="btn btn-primary" id="staff-save-btn" onclick="saveStaff()">Guardar</button></div>
   </div>
 </div>
@@ -628,6 +628,7 @@ function showToast(title, desc='', type='success') {
   setTimeout(()=>t.remove(),4000);
 }
 function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+function up(s){ return s ? String(s).toUpperCase() : s; }
 function openModal(id){ document.getElementById(id).classList.add('open'); }
 function closeModal(id){ document.getElementById(id).classList.remove('open'); editingId=null; }
 document.querySelectorAll('.overlay').forEach(ov=>ov.addEventListener('click', e=>{ if(e.target===ov) ov.classList.remove('open'); }));
@@ -829,9 +830,9 @@ async function loadLookups() {
   cache.judges = j.data||[]; cache.psychologists = p.data||[]; cache.courts = c.data||[];
 }
 function populateSelects() {
-  document.getElementById('f-juzgado').innerHTML = '<option value="">Seleccione un juzgado</option>' + cache.courts.map(c=>`<option value="${c.id}">${escapeHtml(c.full_name)}</option>`).join('');
-  document.getElementById('f-juez').innerHTML = '<option value="">Seleccione un juez/a</option>' + cache.judges.map(j=>`<option value="${j.id}">${escapeHtml(j.full_name)}</option>`).join('');
-  document.getElementById('f-psicologo').innerHTML = '<option value="">Seleccione un psicólogo/a</option>' + cache.psychologists.map(p=>`<option value="${p.id}">${escapeHtml(p.full_name)}</option>`).join('');
+  document.getElementById('f-juzgado').innerHTML = '<option value="">Seleccione un juzgado</option>' + cache.courts.map(c=>`<option value="${c.id}">${escapeHtml(up(c.full_name))}</option>`).join('');
+  document.getElementById('f-juez').innerHTML = '<option value="">Seleccione un juez/a</option>' + cache.judges.map(j=>`<option value="${j.id}">${escapeHtml(up(j.full_name))}</option>`).join('');
+  document.getElementById('f-psicologo').innerHTML = '<option value="">Seleccione un psicólogo/a</option>' + cache.psychologists.map(p=>`<option value="${p.id}">${escapeHtml(up(p.full_name))}</option>`).join('');
 }
 
 // ════════════════════════════════════════════
@@ -852,14 +853,14 @@ async function exportBackup() {
     const wb = XLSX.utils.book_new();
 
     const sessionsData = (sessionsRes.data || []).map(s => {
-      const juzgadoFiscalia = [s.courts?.full_name, s.judges?.full_name].filter(Boolean).join(' — ');
+      const juzgadoFiscalia = up([s.courts?.full_name, s.judges?.full_name].filter(Boolean).join(' — '));
       return {
         'Disco N°': s.disco_number,
         'Fecha': fmtDateOnly(s.session_date),
-        'Oficio N°': s.oficio_number || '',
+        'Oficio N°': up(s.oficio_number) || '',
         'Juzgado o Fiscalía': juzgadoFiscalia,
-        'Causa': s.case_name,
-        'Psicóloga': s.psychologists?.full_name || '',
+        'Causa': up(s.case_name),
+        'Psicóloga': up(s.psychologists?.full_name) || '',
         'Cant. Copias': s.cantidad_copias || '',
         'Nombre/Apellido - Firma': s.copia_entregada ? 'Si' : 'No',
       };
@@ -918,13 +919,13 @@ function renderSessions(sessions) {
     <tr class="data-row">
       <td class="bold">${s.disco_number}</td>
       <td>${fmtDateOnly(s.session_date)}</td>
-      <td class="bold" style="max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml(s.case_name)}</td>
-      <td style="max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml(s.courts?.full_name || s.defendant_name || '-')}</td>
-      <td>${escapeHtml(s.victim_name || s.victims?.full_name || '-')}</td>
-      <td>${escapeHtml(s.oficio_number || '-')}</td>
+      <td class="bold" style="max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml(up(s.case_name))}</td>
+      <td style="max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml(up(s.courts?.full_name || s.defendant_name) || '-')}</td>
+      <td>${escapeHtml(up(s.victim_name || s.victims?.full_name) || '-')}</td>
+      <td>${escapeHtml(up(s.oficio_number) || '-')}</td>
       <td><span class="badge ${s.copia_entregada?'badge-green':'badge-gray'}">${s.copia_entregada?'Sí':'No'}</span></td>
-      <td>${escapeHtml(s.judges?.full_name || '-')}</td>
-      <td>${escapeHtml(s.psychologists?.full_name || '-')}</td>
+      <td>${escapeHtml(up(s.judges?.full_name) || '-')}</td>
+      <td>${escapeHtml(up(s.psychologists?.full_name) || '-')}</td>
       <td><div class="td-actions">
         <button class="btn btn-ghost btn-icon btn-sm" onclick="editSession(${s.id})" title="Editar">✏️</button>
         <button class="btn btn-ghost btn-icon btn-sm" onclick="askDelete(${s.id},'session')" title="Eliminar">🗑️</button>
@@ -966,10 +967,10 @@ async function saveSession() {
     const { data: { user } } = await sb.auth.getUser();
     if (!user) throw new Error('Usuario no autenticado');
     const payload = {
-      disco_number: disco, session_date: fecha, case_name: causa, defendant_name: 'N/A',
+      disco_number: disco, session_date: fecha, case_name: up(causa), defendant_name: 'N/A',
       court_id: parseInt(document.getElementById('f-juzgado').value) || null,
-      victim_name: document.getElementById('f-victima').value || null,
-      oficio_number: document.getElementById('f-oficio').value || null,
+      victim_name: up(document.getElementById('f-victima').value) || null,
+      oficio_number: up(document.getElementById('f-oficio').value) || null,
       cantidad_copias: parseInt(document.getElementById('f-copias').value) || null,
       judge_id: parseInt(document.getElementById('f-juez').value) || null,
       psychologist_id: parseInt(document.getElementById('f-psicologo').value) || null,
@@ -1016,10 +1017,10 @@ function doSearch() {
   if (!results.length) { tbody.innerHTML = `<tr><td colspan="9"><div class="empty-state"><p>No se encontraron sesiones con los filtros aplicados.</p></div></td></tr>`; return; }
   tbody.innerHTML = results.map(s=>`
     <tr class="data-row">
-      <td class="bold">${s.disco_number}</td><td>${fmtDateOnly(s.session_date)}</td><td class="bold">${escapeHtml(s.case_name)}</td>
-      <td>${escapeHtml(s.courts?.full_name||'-')}</td><td>${escapeHtml(s.victim_name||s.victims?.full_name||'-')}</td>
-      <td>${escapeHtml(s.oficio_number||'-')}</td><td><span class="badge ${s.copia_entregada?'badge-green':'badge-gray'}">${s.copia_entregada?'Sí':'No'}</span></td>
-      <td>${escapeHtml(s.judges?.full_name||'-')}</td><td>${escapeHtml(s.psychologists?.full_name||'-')}</td>
+      <td class="bold">${s.disco_number}</td><td>${fmtDateOnly(s.session_date)}</td><td class="bold">${escapeHtml(up(s.case_name))}</td>
+      <td>${escapeHtml(up(s.courts?.full_name)||'-')}</td><td>${escapeHtml(up(s.victim_name||s.victims?.full_name)||'-')}</td>
+      <td>${escapeHtml(up(s.oficio_number)||'-')}</td><td><span class="badge ${s.copia_entregada?'badge-green':'badge-gray'}">${s.copia_entregada?'Sí':'No'}</span></td>
+      <td>${escapeHtml(up(s.judges?.full_name)||'-')}</td><td>${escapeHtml(up(s.psychologists?.full_name)||'-')}</td>
     </tr>`).join('');
 }
 
@@ -1105,7 +1106,7 @@ function generatePDF() {
   doc.autoTable({
     startY:y2+4,
     head:[['Fecha','Causa','Víctima','Juez/a','Psicólogo/a','Disco','Oficio','Copias']],
-    body: sessions.map(s=>[fmtDateOnly(s.session_date), s.case_name, s.victim_name||s.victims?.full_name||'-', s.judges?.full_name||'-', s.psychologists?.full_name||'-', String(s.disco_number), s.oficio_number||'-', s.cantidad_copias?String(s.cantidad_copias):'-']),
+    body: sessions.map(s=>[fmtDateOnly(s.session_date), up(s.case_name), up(s.victim_name||s.victims?.full_name)||'-', up(s.judges?.full_name)||'-', up(s.psychologists?.full_name)||'-', String(s.disco_number), up(s.oficio_number)||'-', s.cantidad_copias?String(s.cantidad_copias):'-']),
     theme:'grid', headStyles:{fillColor:[59,130,246]}, styles:{fontSize:7}, columnStyles:{1:{cellWidth:40},2:{cellWidth:25}},
   });
 
@@ -1155,7 +1156,7 @@ function renderStaff() {
   const tbody = document.getElementById('staff-tbody');
   if (!data.length) { tbody.innerHTML = `<tr><td colspan="2"><div class="empty-state"><p>No hay registros.</p></div></td></tr>`; return; }
   tbody.innerHTML = data.map(s=>`
-    <tr class="data-row"><td class="bold">${escapeHtml(s.full_name)}</td>
+    <tr class="data-row"><td class="bold">${escapeHtml(up(s.full_name))}</td>
     <td><div class="td-actions">
       <button class="btn btn-ghost btn-icon btn-sm" onclick="editStaff(${s.id})">✏️</button>
       <button class="btn btn-ghost btn-icon btn-sm" onclick="askDelete(${s.id},'staff')">🗑️</button>
@@ -1178,7 +1179,7 @@ function openStaffModal(id) {
 }
 function editStaff(id){ openStaffModal(id); }
 async function saveStaff() {
-  const name = document.getElementById('f-staff-name').value.trim();
+  const name = up(document.getElementById('f-staff-name').value.trim());
   if (!name) { showToast('Error','Ingrese el nombre','error'); return; }
   setBtnLoading('staff-save-btn', true, 'Guardar');
   try {
