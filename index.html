@@ -191,6 +191,48 @@ tr.data-row:hover td{background:#F8FAFC}
 .doc-folder-body.open{display:block}
 .doc-folder-body table{width:100%}
 @keyframes spin{to{transform:rotate(360deg)}}
+/* ═══════════════════════════════════════════════════
+   RESPONSIVE — hamburguesa, sidebar tipo cajón, tablas
+   con scroll, formularios en una columna en pantallas chicas
+   ═══════════════════════════════════════════════════ */
+.hamburger-btn{display:none;background:none;border:none;font-size:20px;cursor:pointer;color:var(--text);padding:4px 8px;margin-right:4px;border-radius:6px}
+.hamburger-btn:hover{background:var(--bg)}
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:150}
+.sidebar-overlay.open{display:block}
+
+@media (max-width: 900px){
+  .hamburger-btn{display:inline-block}
+  .sidebar{
+    position:fixed;top:0;left:0;bottom:0;z-index:200;
+    transform:translateX(-100%);transition:transform .2s ease;
+    box-shadow:4px 0 24px rgba(0,0,0,.25);
+  }
+  .sidebar.open{transform:translateX(0)}
+  .content{padding:16px}
+  .page-head{flex-direction:column;align-items:stretch}
+  .page-head-actions{flex-wrap:wrap}
+  .stats-grid{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+  .form-grid{grid-template-columns:1fr}
+  .detail-grid{grid-template-columns:1fr}
+  .grid-2{grid-template-columns:1fr}
+  .dash-grid{grid-template-columns:1fr}
+  .modal, .modal-lg{width:94vw !important;max-width:94vw}
+  .table-wrap{overflow-x:auto}
+  table{min-width:640px}
+  .card-header{flex-wrap:wrap;gap:8px}
+  .search-box{max-width:100%}
+  .month-nav{flex-wrap:wrap}
+}
+
+@media (max-width: 520px){
+  .auth-card{padding:22px 18px}
+  .auth-header-row{flex-wrap:wrap;gap:10px}
+  .page-head-info h1{font-size:19px}
+  .topbar{padding:0 12px}
+  .stats-grid{grid-template-columns:1fr 1fr}
+  .btn-sm{padding:6px 10px;font-size:12px}
+  .modal-footer{flex-wrap:wrap}
+}
 </style>
 </head>
 <body>
@@ -265,7 +307,8 @@ tr.data-row:hover td{background:#F8FAFC}
 <!-- ════ APP ════ -->
 <div id="app-screen">
 <div class="app-shell">
-  <aside class="sidebar">
+  <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
+  <aside class="sidebar" id="sidebar">
     <div class="sidebar-header">
       <div class="sidebar-logo">
         <div class="sidebar-seal-wrap">
@@ -294,7 +337,10 @@ tr.data-row:hover td{background:#F8FAFC}
   </aside>
 
   <div class="main">
-    <div class="topbar"><div class="page-title" id="topbar-title">Registro de Sesiones de Cámara Gesell</div></div>
+    <div class="topbar">
+      <button class="hamburger-btn" id="hamburger-btn" onclick="toggleSidebar()" aria-label="Menú">☰</button>
+      <div class="page-title" id="topbar-title">Registro de Sesiones de Cámara Gesell</div>
+    </div>
     <div class="content">
 
       <!-- SESSIONS -->
@@ -568,6 +614,16 @@ function openModal(id){ document.getElementById(id).classList.add('open'); }
 function closeModal(id){ document.getElementById(id).classList.remove('open'); editingId=null; }
 document.querySelectorAll('.overlay').forEach(ov=>ov.addEventListener('click', e=>{ if(e.target===ov) ov.classList.remove('open'); }));
 function togglePass(id){ const i=document.getElementById(id); i.type = i.type==='password'?'text':'password'; }
+function toggleSidebar(){
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('sidebar-overlay').classList.toggle('open');
+}
+function closeSidebarIfMobile(){
+  if (window.innerWidth <= 900) {
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('sidebar-overlay').classList.remove('open');
+  }
+}
 function setBtnLoading(id, loading, label) {
   const b = document.getElementById(id);
   if (!b) return;
@@ -729,6 +785,7 @@ sb.auth.onAuthStateChange((event) => {
 // ════════════════════════════════════════════
 async function navigate(page, btn) {
   currentPage = page;
+  closeSidebarIfMobile();
   document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
   if (btn) btn.classList.add('active');
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
@@ -776,19 +833,33 @@ async function exportBackup() {
 
     const wb = XLSX.utils.book_new();
 
-    const sessionsData = (sessionsRes.data || []).map(s => ({
-      'N° Disco': s.disco_number,
-      'Fecha': fmtDate(s.session_date),
-      'Causa': s.case_name,
-      'Juzgado': s.courts?.full_name || '',
-      'Víctima': s.victim_name || '',
-      'N° Oficio': s.oficio_number || '',
-      'Cantidad de Copias': s.cantidad_copias || '',
-      'Copia Entregada': s.copia_entregada ? 'Sí' : 'No',
-      'Juez/a': s.judges?.full_name || '',
-      'Psicólogo/a': s.psychologists?.full_name || '',
-    }));
-    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(sessionsData), 'Sesiones');
+    const sessionsData = (sessionsRes.data || []).map(s => {
+      const juzgadoFiscalia = [s.courts?.full_name, s.judges?.full_name].filter(Boolean).join(' — ');
+      return {
+        'Disco N°': s.disco_number,
+        'Fecha': fmtDateOnly(s.session_date),
+        'Oficio N°': s.oficio_number || '',
+        'Juzgado o Fiscalía': juzgadoFiscalia,
+        'Causa': s.case_name,
+        'Psicóloga': s.psychologists?.full_name || '',
+        'Cant. Copias': s.cantidad_copias || '',
+        'Nombre/Apellido - Firma': s.copia_entregada ? 'Si' : 'No',
+      };
+    });
+    const sessionsSheet = XLSX.utils.json_to_sheet(sessionsData);
+    sessionsSheet['!cols'] = [
+      { wch: 9 },   // Disco N°
+      { wch: 11 },  // Fecha
+      { wch: 11 },  // Oficio N°
+      { wch: 40 },  // Juzgado o Fiscalía
+      { wch: 55 },  // Causa
+      { wch: 18 },  // Psicóloga
+      { wch: 11 },  // Cant. Copias
+      { wch: 18 },  // Nombre/Apellido - Firma
+    ];
+    const lastCol = String.fromCharCode(65 + Object.keys(sessionsData[0] || {}).length - 1);
+    sessionsSheet['!autofilter'] = { ref: `A1:${lastCol}1` };
+    XLSX.utils.book_append_sheet(wb, sessionsSheet, 'Sesiones');
 
     XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet((judgesRes.data||[]).map(j=>({'Nombre Completo': j.full_name}))), 'Jueces');
     XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet((psychRes.data||[]).map(p=>({'Nombre Completo': p.full_name}))), 'Psicólogos');
