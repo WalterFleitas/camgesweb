@@ -86,7 +86,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);font-
 .input-wrap{position:relative}
 .input-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:15px;pointer-events:none}
 .input-eye{position:absolute;right:10px;top:50%;transform:translateY(-50%);color:var(--muted);background:none;border:none;cursor:pointer;padding:0}
-.form-input{width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:var(--radius);font-size:13px;font-family:inherit;outline:none;transition:border .12s;background:var(--surface)}
+.form-input{width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:var(--radius);font-size:13px;font-family:inherit;outline:none;transition:border .12s;background:var(--surface);color:var(--text)}
 .form-input:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(59,130,246,.1)}
 .form-input.with-icon{padding-left:34px}
 .form-hint{font-size:11px;color:var(--muted);margin-top:3px}
@@ -177,9 +177,9 @@ tr.data-row:hover td{background:var(--bg)}
 .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .form-group-m{margin-bottom:14px}
 .full{grid-column:1/-1}
-.form-select{width:100%;padding:9px 32px 9px 12px;border:1px solid var(--border);border-radius:var(--radius);font-size:13px;font-family:inherit;outline:none;background:var(--surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394A3B8' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right 10px center;-webkit-appearance:none;appearance:none;transition:border .12s}
+.form-select{width:100%;padding:9px 32px 9px 12px;border:1px solid var(--border);border-radius:var(--radius);font-size:13px;font-family:inherit;outline:none;background:var(--surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394A3B8' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right 10px center;-webkit-appearance:none;appearance:none;transition:border .12s;color:var(--text)}
 .form-select:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(59,130,246,.1);outline:none}
-.form-textarea{width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:var(--radius);font-size:13px;font-family:inherit;outline:none;resize:vertical;min-height:80px;transition:border .12s}
+.form-textarea{width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:var(--radius);font-size:13px;font-family:inherit;outline:none;resize:vertical;min-height:80px;transition:border .12s;background:var(--surface);color:var(--text)}
 .form-textarea:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(59,130,246,.1)}
 .checkbox-wrap{display:flex;align-items:center;gap:8px;padding:10px 0}
 .checkbox-wrap input[type=checkbox]{width:16px;height:16px;accent-color:var(--primary);cursor:pointer}
@@ -826,7 +826,7 @@ async function initSession() {
   document.getElementById('app-screen').style.display = 'block';
   document.getElementById('admin-label').style.display = isAdmin ? 'block' : 'none';
   document.getElementById('users-nav').style.display = isAdmin ? 'flex' : 'none';
-  document.getElementById('upload-card').style.display = isAdmin ? 'block' : 'none';
+  document.getElementById('upload-card').style.display = (isAdmin || allowedModules.includes('documents')) ? 'block' : 'none';
 
   document.querySelectorAll('#sidebar-nav .nav-item[data-module]').forEach(btn => {
     const mod = btn.dataset.module;
