@@ -14,16 +14,17 @@ Deno.serve(async (req) => {
 
   try {
     const bootstrapSecret = Deno.env.get('BOOTSTRAP_SECRET')
-    const provided = req.headers.get('x-bootstrap-secret')
-    if (!bootstrapSecret || !provided || provided !== bootstrapSecret) {
-      return json({ error: 'No autorizado' }, 401)
-    }
 
-    let body: { email?: unknown; password?: unknown }
+    let body: { email?: unknown; password?: unknown; bootstrap_secret?: unknown }
     try {
       body = await req.json()
     } catch {
       return json({ error: 'Cuerpo de solicitud inválido' }, 400)
+    }
+
+    const provided = body.bootstrap_secret
+    if (!bootstrapSecret || typeof provided !== 'string' || provided !== bootstrapSecret) {
+      return json({ error: 'No autorizado' }, 401)
     }
 
     const email = body.email
