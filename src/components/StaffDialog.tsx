@@ -1,0 +1,119 @@
+import { useState, useEffect } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+
+interface StaffDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onSuccess: () => void;
+  type: "judges" | "psychologists";
+  staff?: any;
+}
+
+export function StaffDialog({ open, onOpenChange, onSuccess, type, staff }: StaffDialogProps) {
+  const { toast } = useToast();
+  const [loading, setLoading] = useState(false);
+  const [fullName, setFullName] = useState("");
+
+  useEffect(() => {
+    if (staff) {
+      setFullName(staff.full_name);
+    } else {
+      setFullName("");
+    }
+  }, [staff, open]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Usuario no autenticado");
+
+      const table = type;
+
+      if (staff) {
+        const { error } = await supabase
+          .from(table)
+          .update({ full_name: fullName })
+          .eq("id", staff.id);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase
+          .from(table)
+          .insert({ full_name: fullName, user_id: user.id });
+        if (error) throw error;
+      }
+
+      const label = type === "judges" ? "Juez/a" : "Psicólogo/a";
+      toast({
+        title: staff ? `${label} actualizado` : `${label} creado`,
+        description: staff ? `El/la ${label.toLowerCase()} se actualizó correctamente` : `El/la ${label.toLowerCase()} se creó correctamente`,
+      });
+
+      onSuccess();
+      onOpenChange(false);
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const title = staff
+    ? type === "judges" ? "Editar Juez/a" : "Editar Psicólogo/a"
+    : type === "judges" ? "Nuevo Juez/a" : "Nuevo Psicólogo/a";
+
+  const description = type === "judges"
+    ? "Complete la información del juez o jueza"
+    : "Complete la información del psicólogo o psicóloga";
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle>{title}</DialogTitle>
+          <p className="text-sm text-muted-foreground">{description}</p>
+        </DialogHeader>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="id">ID de {type === "judges" ? "Juez/a" : "Psicólogo/a"}</Label>
+            <Input
+              id="id"
+              value={staff?.id || "Auto-generado"}
+              disabled
+              className="bg-muted"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="full_name">Nombre Completo</Label>
+            <Input
+              id="full_name"
+              placeholder={`Nombre completo del ${type === "judges" ? "juez o jueza" : "psicólogo o psicóloga"}`}
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+              required
+            />
+          </div>
+          <div className="flex gap-2 justify-end">
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+              Cancelar
+            </Button>
+            <Button type="submit" disabled={loading}>
+              {loading ? "Guardando..." : "Guardar"}
+            </Button>
+          </div>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}
