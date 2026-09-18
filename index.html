@@ -1011,7 +1011,7 @@ async function loadSessions() {
   await loadLookups();
   const { data, error } = await sb.from('sessions')
     .select('*, victims(id,full_name), judges(id,full_name), psychologists(id,full_name), courts(id,full_name)')
-    .order('created_at', { ascending: false });
+    .order('disco_number', { ascending: false });
   if (error) { showToast('Error al cargar sesiones', error.message, 'error'); return; }
   cache.sessions = data || [];
   renderSessions(cache.sessions);
