@@ -933,13 +933,14 @@ async function fetchAllSessions() {
   while (true) {
     const { data, error } = await sb.from('sessions')
       .select('*, judges(full_name), psychologists(full_name), courts(full_name)')
-      .order('disco_number', { ascending: true })
+      .order('id', { ascending: true })
       .range(from, from + pageSize - 1);
     if (error) throw error;
     all = all.concat(data || []);
     if (!data || data.length < pageSize) break;
     from += pageSize;
   }
+  all.sort((a, b) => Number(a.disco_number) - Number(b.disco_number));
   return all;
 }
 
@@ -1010,10 +1011,9 @@ async function exportBackup() {
 async function loadSessions() {
   await loadLookups();
   const { data, error } = await sb.from('sessions')
-    .select('*, victims(id,full_name), judges(id,full_name), psychologists(id,full_name), courts(id,full_name)')
-    .order('disco_number', { ascending: false });
+    .select('*, victims(id,full_name), judges(id,full_name), psychologists(id,full_name), courts(id,full_name)');
   if (error) { showToast('Error al cargar sesiones', error.message, 'error'); return; }
-  cache.sessions = data || [];
+  cache.sessions = (data || []).sort((a, b) => Number(b.disco_number) - Number(a.disco_number));
   renderSessions(cache.sessions);
 }
 function renderSessions(sessions) {
@@ -1109,7 +1109,7 @@ function doSearch() {
   const desde = document.getElementById('s-desde').value;
   const hasta = document.getElementById('s-hasta').value;
   let results = (cache.sessions||[]).filter(s => {
-    if (disco && s.disco_number !== parseInt(disco)) return false;
+    if (disco && Number(s.disco_number) !== parseInt(disco)) return false;
     if (causa && !s.case_name.toLowerCase().includes(causa)) return false;
     if (juzgado && !(s.courts?.full_name||'').toLowerCase().includes(juzgado)) return false;
     if (desde && s.session_date < desde) return false;
